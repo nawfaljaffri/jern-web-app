@@ -12,6 +12,7 @@ import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import Flag from "react-world-flags";
+import { useTheme } from "next-themes";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -38,6 +39,7 @@ export default function Home() {
 
   const { speak, stop, voices, isSpeaking, isPending } = useTTS();
   const [isIOS, setIsIOS] = useState(false);
+  const { theme, setTheme } = useTheme();
 
   useEffect(() => {
     if (typeof navigator !== "undefined") {
@@ -224,16 +226,16 @@ export default function Home() {
           <h1 className="text-xl font-medium tracking-tight">JERN</h1>
         </div>
 
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-6 md:gap-8">
           <button onClick={() => setIsInfoOpen(true)} className="text-muted hover:text-foreground transition-all">
-            <Info className="w-[18px] md:w-[24px] h-[18px] md:h-[24px]" />
+            <Info className="w-5 md:w-8 h-5 md:h-8" />
           </button>
           <button onClick={() => setIsHistoryOpen(true)} className="text-muted hover:text-foreground transition-all relative">
-            <History className="w-[18px] md:w-[24px] h-[18px] md:h-[24px]" />
+            <History className="w-5 md:w-8 h-5 md:h-8" />
             {history.length > 0 && <span className="absolute -top-1 -right-1 w-2 md:w-3 h-2 md:h-3 bg-accent rounded-full" />}
           </button>
           <button onClick={() => setIsSettingsOpen(true)} className="text-muted hover:text-foreground transition-all">
-            <Settings className="w-[18px] md:w-[24px] h-[18px] md:h-[24px]" />
+            <Settings className="w-5 md:w-8 h-5 md:h-8" />
           </button>
         </div>
       </header>
@@ -241,10 +243,9 @@ export default function Home() {
       {/* Main Content */}
       <div
         className="flex-1 flex flex-col items-center justify-center max-w-4xl mx-auto w-full px-6 relative select-none"
-        style={{ WebkitUserSelect: "none", userSelect: "none", WebkitTouchCallout: "none" }}
       >
-        <div className="w-full flex-col flex items-center mb-24 relative pointer-events-none z-10">
-          <div className="w-full flex justify-between items-center opacity-20 pointer-events-auto">
+        <div className="absolute top-0 sm:top-8 w-full flex-col flex items-center pointer-events-none z-10 pt-4">
+          <div className="w-full flex justify-between items-center opacity-30 pointer-events-auto px-4">
             <div className="text-[10px] md:text-sm font-mono uppercase tracking-[0.4em] flex items-center gap-4">
               <Globe className="w-3 md:w-4 h-3 md:h-4" />
               <span>{LANGUAGES.find(l => l.value === settings.language)?.label} / {settings.difficulty}</span>
@@ -313,13 +314,6 @@ export default function Home() {
         </AnimatePresence>
       </div>
 
-      {/* Footer (Minimal) */}
-      <footer className="px-8 py-12 flex justify-center opacity-5">
-        <p className="text-[8px] font-light tracking-[0.6em] uppercase">
-          Engine Active . Local Intelligence
-        </p>
-      </footer>
-
       {/* Settings Modal */}
       <AnimatePresence>
         {isSettingsOpen && (
@@ -345,6 +339,22 @@ export default function Home() {
                     >
                       <Flag code={lang.countryCode} className="h-6 object-cover rounded-sm shadow-sm" />
                       <span className="text-[9px] font-bold uppercase tracking-tighter">{lang.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h2 className="text-xs font-semibold uppercase tracking-wider text-muted">Appearance</h2>
+                <div className="flex gap-2 p-1 bg-extra-muted/20 rounded-2xl">
+                  {['light', 'dark', 'system'].map((t) => (
+                    <button
+                      key={t}
+                      onClick={() => setTheme(t)}
+                      className={`flex-1 py-3 rounded-xl text-[9px] font-bold uppercase tracking-widest transition-all ${theme === t ? "bg-foreground text-background shadow-lg" : "hover:bg-extra-muted/40 text-muted"
+                        }`}
+                    >
+                      {t}
                     </button>
                   ))}
                 </div>

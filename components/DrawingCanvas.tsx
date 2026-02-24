@@ -5,12 +5,11 @@ import React, { useRef, useEffect, useState, useCallback } from "react";
 interface DrawingCanvasProps {
     wordId: string;
     onNext: () => void;
-    onFocusRequest: () => void;
     penThickness?: number;
     penColor?: string;
 }
 
-export default function DrawingCanvas({ wordId, onNext, onFocusRequest, penThickness, penColor }: DrawingCanvasProps) {
+export default function DrawingCanvas({ wordId, onNext, penThickness, penColor }: DrawingCanvasProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [isDrawing, setIsDrawing] = useState(false);
     const lastPosRef = useRef<{ x: number; y: number } | null>(null);
@@ -92,7 +91,6 @@ export default function DrawingCanvas({ wordId, onNext, onFocusRequest, penThick
         lastTapRef.current = now;
 
         if (e.pointerType !== "pen") {
-            onFocusRequest();
             return;
         }
 
