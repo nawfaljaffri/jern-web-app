@@ -14,7 +14,9 @@ export interface SessionSettings {
     language: Language;
     difficulty: Difficulty;
     audioRepeat: boolean;
-    activeRecall: boolean; // New setting
+    activeRecall: boolean;
+    penThickness?: number;
+    penColor?: string;
 }
 
 export interface SessionStats {

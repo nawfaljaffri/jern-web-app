@@ -6,7 +6,7 @@ import { LANGUAGES, FREQUENCY_TIERS } from "@/lib/constants";
 import { Word, Language, Difficulty, SessionSettings } from "@/lib/types";
 import { transliterate } from "@/lib/transliterate";
 import { useTTS } from "@/hooks/useTTS";
-import { Upload, FileText, Settings, History, Volume2, Globe, ChevronRight, ChevronDown, CheckCircle2, RotateCcw, Search, Info } from "lucide-react";
+import { Settings, History, Volume2, Globe, ChevronRight, ChevronDown, CheckCircle2, RotateCcw, Search, Info } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -32,13 +32,11 @@ export default function Home() {
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isInfoOpen, setIsInfoOpen] = useState(false);
-  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [expandedLangInHistory, setExpandedLangInHistory] = useState<Language | null>('ar');
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
 
   const { speak, stop, voices, isSpeaking, isPending } = useTTS();
-  const historyRef = useRef<Word[]>([]);
   const [isIOS, setIsIOS] = useState(false);
 
   useEffect(() => {
@@ -159,7 +157,7 @@ export default function Home() {
     if (dataPack.length > 0 && upcomingWords.length < 3) {
       refillUpcoming(history);
     }
-  }, [dataPack, refillUpcoming, history.length, upcomingWords.length]);
+  }, [dataPack, refillUpcoming, history, upcomingWords.length]);
 
   const currentWord = upcomingWords[0];
 
@@ -228,33 +226,36 @@ export default function Home() {
 
         <div className="flex items-center gap-6">
           <button onClick={() => setIsInfoOpen(true)} className="text-muted hover:text-foreground transition-all">
-            <Info size={18} />
+            <Info className="w-[18px] md:w-[24px] h-[18px] md:h-[24px]" />
           </button>
           <button onClick={() => setIsHistoryOpen(true)} className="text-muted hover:text-foreground transition-all relative">
-            <History size={18} />
-            {history.length > 0 && <span className="absolute -top-1 -right-1 w-2 h-2 bg-accent rounded-full" />}
+            <History className="w-[18px] md:w-[24px] h-[18px] md:h-[24px]" />
+            {history.length > 0 && <span className="absolute -top-1 -right-1 w-2 md:w-3 h-2 md:h-3 bg-accent rounded-full" />}
           </button>
           <button onClick={() => setIsSettingsOpen(true)} className="text-muted hover:text-foreground transition-all">
-            <Settings size={18} />
+            <Settings className="w-[18px] md:w-[24px] h-[18px] md:h-[24px]" />
           </button>
         </div>
       </header>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col items-center justify-center max-w-4xl mx-auto w-full px-6 relative">
-        <div className="absolute top-0 sm:top-8 w-full flex-col flex items-center pointer-events-none z-10">
+      <div
+        className="flex-1 flex flex-col items-center justify-center max-w-4xl mx-auto w-full px-6 relative select-none"
+        style={{ WebkitUserSelect: "none", userSelect: "none", WebkitTouchCallout: "none" }}
+      >
+        <div className="w-full flex-col flex items-center mb-24 relative pointer-events-none z-10">
           <div className="w-full flex justify-between items-center opacity-20 pointer-events-auto">
-            <div className="text-[10px] font-mono uppercase tracking-[0.4em] flex items-center gap-4">
-              <Globe size={12} />
+            <div className="text-[10px] md:text-sm font-mono uppercase tracking-[0.4em] flex items-center gap-4">
+              <Globe className="w-3 md:w-4 h-3 md:h-4" />
               <span>{LANGUAGES.find(l => l.value === settings.language)?.label} / {settings.difficulty}</span>
             </div>
-            <div className="text-[10px] font-mono uppercase tracking-[0.2em] flex items-center gap-2">
-              <CheckCircle2 size={12} />
+            <div className="text-[10px] md:text-sm font-mono uppercase tracking-[0.2em] flex items-center gap-2">
+              <CheckCircle2 className="w-3 md:w-4 h-3 md:h-4" />
               <span>Mastered: {history.length}</span>
             </div>
           </div>
 
-          <div className="mt-6 flex flex-col items-center gap-2 w-full text-center pointer-events-auto">
+          <div className="mt-6 flex flex-col items-center gap-2 w-full text-center pointer-events-auto px-4 top-10 absolute">
             <AnimatePresence>
               {['ja', 'ko'].includes(settings.language) && (
                 <motion.div
@@ -303,6 +304,8 @@ export default function Home() {
               isSpeaking={isSpeaking}
               isPending={isPending}
               isIOS={isIOS}
+              penThickness={settings.penThickness}
+              penColor={settings.penColor}
             />
           ) : (
             <div className="text-muted font-mono animate-pulse">Replenishing pool...</div>
@@ -399,6 +402,46 @@ export default function Home() {
                   </button>
                 </div>
               </div>
+
+              {isIOS && (
+                <div className="space-y-4">
+                  <h2 className="text-xs font-semibold uppercase tracking-wider text-muted">Apple Pencil</h2>
+                  <div className="space-y-3">
+                    <div className="w-full p-5 rounded-3xl border border-extra-muted flex flex-col gap-4">
+                      <span className="text-xs font-semibold">Thickness</span>
+                      <input
+                        type="range"
+                        min="1" max="20"
+                        value={settings.penThickness || 6}
+                        onChange={(e) => updateSettings({ penThickness: parseInt(e.target.value) })}
+                        className="w-full accent-accent"
+                      />
+                    </div>
+                    <div className="w-full p-5 rounded-3xl border border-extra-muted flex flex-col gap-4">
+                      <span className="text-xs font-semibold">Color</span>
+                      <div className="flex gap-2">
+                        {[
+                          { label: "Adaptive", value: "default" },
+                          { label: "Blue", value: "#3b82f6" },
+                          { label: "Red", value: "#ef4444" },
+                          { label: "Green", value: "#22c55e" }
+                        ].map(c => (
+                          <button
+                            key={c.value}
+                            onClick={() => updateSettings({ penColor: c.value })}
+                            className={`flex-1 py-3 rounded-xl text-[9px] font-bold uppercase tracking-widest transition-all ${(settings.penColor || "default") === c.value
+                              ? "bg-foreground text-background shadow-lg"
+                              : "hover:bg-extra-muted/40 bg-extra-muted/20 text-muted"
+                              }`}
+                          >
+                            {c.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </motion.div>
           </motion.div>
         )}
@@ -539,6 +582,7 @@ export default function Home() {
 
 function VirtualList({ words }: { words: Word[] }) {
   const parentRef = useRef<HTMLDivElement>(null);
+  // eslint-disable-next-line react-hooks/incompatible-library
   const rowVirtualizer = useVirtualizer({
     count: words.length,
     getScrollElement: () => parentRef.current,

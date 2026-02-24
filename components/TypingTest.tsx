@@ -32,24 +32,23 @@ interface TypingTestProps {
     isSpeaking?: boolean;
     isPending?: boolean;
     isIOS?: boolean;
+    penThickness?: number;
+    penColor?: string;
 }
 
-export default function TypingTest({ word, onComplete, onMismatch, onSpeak, isSpeaking, isPending, isIOS }: TypingTestProps) {
+export default function TypingTest({ word, onComplete, onMismatch, onSpeak, isSpeaking, isPending, isIOS, penThickness, penColor }: TypingTestProps) {
     const [userInput, setUserInput] = useState("");
     const inputRef = useRef<HTMLInputElement>(null);
     const [isFocused, setIsFocused] = useState(true);
     const [isShaking, setIsShaking] = useState(false);
     const [audioMode, setAudioMode] = useState<"en" | "original">("en");
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         inputRef.current?.focus();
-        // @ts-ignore
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setUserInput("");
-        // @ts-ignore
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setIsShaking(false);
+        setTimeout(() => {
+            setUserInput("");
+            setIsShaking(false);
+        }, 0);
     }, [word]);
 
     const triggerError = useCallback(() => {
@@ -118,6 +117,8 @@ export default function TypingTest({ word, onComplete, onMismatch, onSpeak, isSp
                     setUserInput("");
                 }}
                 onFocusRequest={() => inputRef.current?.focus()}
+                penThickness={penThickness}
+                penColor={penColor}
             />
             <input
                 ref={inputRef}

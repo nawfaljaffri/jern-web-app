@@ -6,9 +6,11 @@ interface DrawingCanvasProps {
     wordId: string;
     onNext: () => void;
     onFocusRequest: () => void;
+    penThickness?: number;
+    penColor?: string;
 }
 
-export default function DrawingCanvas({ wordId, onNext, onFocusRequest }: DrawingCanvasProps) {
+export default function DrawingCanvas({ wordId, onNext, onFocusRequest, penThickness, penColor }: DrawingCanvasProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [isDrawing, setIsDrawing] = useState(false);
     const lastPosRef = useRef<{ x: number; y: number } | null>(null);
@@ -136,14 +138,18 @@ export default function DrawingCanvas({ wordId, onNext, onFocusRequest }: Drawin
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
 
-        // Base color on dark mode preference
-        const isDark = document.documentElement.classList.contains('dark') ||
-            (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        // Base color on dark mode preference or user setting
+        if (penColor && penColor !== "default") {
+            ctx.strokeStyle = penColor;
+        } else {
+            const isDark = document.documentElement.className.includes('dark') ||
+                (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            ctx.strokeStyle = isDark ? "rgba(255, 255, 255, 0.9)" : "rgba(0, 0, 0, 0.9)";
+        }
 
-        ctx.strokeStyle = isDark ? "rgba(255, 255, 255, 0.9)" : "rgba(0, 0, 0, 0.9)";
-
-        const minWidth = 3;
-        const maxWidth = 12;
+        const baseThickness = penThickness || 6;
+        const minWidth = Math.max(1, baseThickness * 0.5);
+        const maxWidth = baseThickness * 1.5;
         // Adjust width smoothly based on pressure
         const currentWidth = minWidth + (maxWidth - minWidth) * pressure;
 
