@@ -62,13 +62,34 @@ export function useTTS() {
 
         // Smart Voice Selection logic
         if (voices.length > 0) {
-            // 1. Try an exact match (e.g. 'fr-FR')
-            let matchedVoice = voices.find(v => v.lang.toLowerCase() === lang.toLowerCase());
+            let matchedVoice;
 
-            // 2. Try matching just the base language (e.g. 'fr')
-            if (!matchedVoice) {
-                const baseLang = lang.split('-')[0].toLowerCase();
-                matchedVoice = voices.find(v => v.lang.toLowerCase().startsWith(baseLang));
+            // Special handling for English (especially on iOS to avoid robotic default)
+            if (lang.startsWith("en")) {
+                // Preferred high-quality English voices
+                const preferredNames = ["Samantha", "Daniel", "Karen", "Moira", "Rishi", "Google US English", "Google UK English Female"];
+
+                // 1. Try to find a premium/enhanced voice first
+                matchedVoice = voices.find(v => v.lang.startsWith("en") && (v.name.includes("Premium") || v.name.includes("Enhanced")));
+
+                // 2. Try preferred names
+                if (!matchedVoice) {
+                    matchedVoice = voices.find(v => v.lang.startsWith("en") && preferredNames.some(name => v.name.includes(name)));
+                }
+
+                // 3. Fallback to any English voice
+                if (!matchedVoice) {
+                    matchedVoice = voices.find(v => v.lang.startsWith("en"));
+                }
+            } else {
+                // For other languages, try an exact match (e.g. 'fr-FR')
+                matchedVoice = voices.find(v => v.lang.toLowerCase() === lang.toLowerCase());
+
+                // Try matching just the base language (e.g. 'fr')
+                if (!matchedVoice) {
+                    const baseLang = lang.split('-')[0].toLowerCase();
+                    matchedVoice = voices.find(v => v.lang.toLowerCase().startsWith(baseLang));
+                }
             }
 
             if (matchedVoice) {

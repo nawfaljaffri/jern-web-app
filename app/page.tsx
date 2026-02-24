@@ -39,16 +39,20 @@ export default function Home() {
 
   const { speak, stop, voices, isSpeaking, isPending } = useTTS();
   const historyRef = useRef<Word[]>([]);
+  const [isIOS, setIsIOS] = useState(false);
+
+  useEffect(() => {
+    if (typeof navigator !== "undefined") {
+      setIsIOS(/iPad|iPhone|iPod/.test(navigator.userAgent) ||
+        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1));
+    }
+  }, []);
   const wordsSinceRecallRef = useRef(0);
 
   const isVoiceMissing = React.useMemo(() => {
-    // Only show warning on iOS, as Android Chrome dynamically fetches TTS 
+    // Only show warning on iOS, as Android Chrome dynamically fetches TTS
     // without returning it in `getVoices()`
-    if (typeof navigator !== "undefined") {
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-      if (!isIOS) return false;
-    }
+    if (!isIOS) return false;
 
     if (voices.length === 0) return false; // Still loading or not supported
     const langCode = LANGUAGES.find(l => l.value === settings.language)?.ttsLocale || "en-US";
@@ -58,7 +62,7 @@ export default function Home() {
       matchedVoice = voices.find(v => v.lang.toLowerCase().startsWith(baseLang));
     }
     return !matchedVoice;
-  }, [voices, settings.language]);
+  }, [voices, settings.language, isIOS]);
 
   // 1. Data Loader - Fetch JSON asynchronously
   const loadDataPack = useCallback(async (lang: Language) => {
@@ -263,7 +267,18 @@ export default function Home() {
                   ⚠️ This language is currently under development and may be unstable or inaccurate at times.
                 </motion.div>
               )}
-              {isVoiceMissing && (
+              {settings.language === 'ur' && isIOS && (
+                <motion.div
+                  key="urdu-ios-warning"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="text-[9px] font-mono uppercase tracking-widest text-red-500/80 bg-red-500/10 border border-red-500/20 px-6 py-2.5 rounded-xl text-center max-w-lg leading-loose"
+                >
+                  🔇 Apple iOS currently does not support Urdu Text-To-Speech natively. Audio may only work on Android or Desktop browsers.
+                </motion.div>
+              )}
+              {isVoiceMissing && settings.language !== 'ur' && (
                 <motion.div
                   key="missing-voice-warning"
                   initial={{ opacity: 0, y: -10 }}
