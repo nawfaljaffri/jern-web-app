@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { Volume2, Loader2, Volume1 } from "lucide-react";
+import DrawingCanvas from "./DrawingCanvas";
 
 const TTS_LANG_MAP: Record<string, string> = {
     ar: "ar-SA",
@@ -101,9 +102,17 @@ export default function TypingTest({ word, onComplete, onMismatch, onSpeak, isSp
 
     return (
         <div
-            className="relative flex flex-col items-center justify-center min-h-[400px] w-full cursor-text"
+            className="relative flex flex-col items-center justify-center min-h-[400px] md:min-h-[500px] w-full cursor-text"
             onClick={() => inputRef.current?.focus()}
         >
+            <DrawingCanvas
+                wordId={word.id}
+                onNext={() => {
+                    onComplete();
+                    setUserInput("");
+                }}
+                onFocusRequest={() => inputRef.current?.focus()}
+            />
             <input
                 ref={inputRef}
                 type="text"
@@ -118,7 +127,7 @@ export default function TypingTest({ word, onComplete, onMismatch, onSpeak, isSp
             <motion.div
                 animate={isShaking ? { x: [-5, 5, -5, 5, 0] } : {}}
                 transition={{ duration: 0.4 }}
-                className="relative text-7xl font-medium tracking-tight select-none flex flex-wrap justify-center gap-[0.05em] mb-12"
+                className="relative text-7xl md:text-8xl lg:text-[9rem] font-medium tracking-tight select-none flex flex-wrap justify-center gap-[0.05em] mb-12 z-0"
             >
                 {normalizedRomanized.split("").map((char, index) => {
                     let colorClass = "text-foreground opacity-20";
@@ -160,7 +169,7 @@ export default function TypingTest({ word, onComplete, onMismatch, onSpeak, isSp
                     initial={{ opacity: 0, scale: 0.98 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.98 }}
-                    className="flex flex-col items-center gap-6"
+                    className="flex flex-col items-center gap-6 relative z-20 pointer-events-auto"
                 >
                     <div className={cn(
                         "text-6xl text-muted/60 transition-colors",
