@@ -524,17 +524,6 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="bg-extra-muted/10 p-4 rounded-2xl flex items-center gap-4">
-                <div className="text-[10px] font-mono border border-muted/30 px-2 py-1 rounded bg-background text-foreground uppercase shrink-0">
-                  {isIOS ? "PEN" : "TAB"}
-                </div>
-                <div className="text-xs text-muted font-medium">
-                  {isIOS
-                    ? "Double tap the screen with Apple Pencil to skip to the next word. You can also press TAB."
-                    : "Press TAB at any time to skip a difficult word."}
-                </div>
-              </div>
-
               <div className="pt-4 border-t border-extra-muted text-center">
                 <p className="text-[10px] text-muted uppercase tracking-widest">
                   Developed by <a href="https://www.linkedin.com/in/nawfaljafri/" target="_blank" rel="noopener noreferrer" className="text-foreground hover:text-accent transition-colors font-semibold">Nawfal Jaffri</a>
