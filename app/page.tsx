@@ -42,6 +42,14 @@ export default function Home() {
   const wordsSinceRecallRef = useRef(0);
 
   const isVoiceMissing = React.useMemo(() => {
+    // Only show warning on iOS, as Android Chrome dynamically fetches TTS 
+    // without returning it in `getVoices()`
+    if (typeof navigator !== "undefined") {
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      if (!isIOS) return false;
+    }
+
     if (voices.length === 0) return false; // Still loading or not supported
     const langCode = LANGUAGES.find(l => l.value === settings.language)?.ttsLocale || "en-US";
     let matchedVoice = voices.find(v => v.lang.toLowerCase() === langCode.toLowerCase());
