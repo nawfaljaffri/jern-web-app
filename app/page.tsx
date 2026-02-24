@@ -192,6 +192,18 @@ export default function Home() {
     setUpcomingWords(prev => prev.slice(1));
   }, [currentWord]);
 
+  const handleBack = useCallback(() => {
+    setHistory(prev => {
+      if (prev.length === 0) return prev;
+      const lastMastered = prev[0];
+      setUpcomingWords(currentQueue => [lastMastered, ...currentQueue]);
+
+      const newHistory = prev.slice(1);
+      localStorage.setItem('jern-history', JSON.stringify(newHistory));
+      return newHistory;
+    });
+  }, []);
+
   const updateSettings = (updates: Partial<SessionSettings>) => {
     setSettings(prev => {
       const isQueueReset = (updates.language && updates.language !== prev.language) ||
@@ -301,6 +313,7 @@ export default function Home() {
               key={currentWord.id + settings.language}
               word={currentWord}
               onComplete={handleComplete}
+              onBack={handleBack}
               onSpeak={(text, lang) => speak(text, lang, false)}
               isSpeaking={isSpeaking}
               isPending={isPending}
@@ -344,21 +357,7 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="space-y-4">
-                <h2 className="text-xs font-semibold uppercase tracking-wider text-muted">Appearance</h2>
-                <div className="flex gap-2 p-1 bg-extra-muted/20 rounded-2xl">
-                  {['light', 'dark', 'system'].map((t) => (
-                    <button
-                      key={t}
-                      onClick={() => setTheme(t)}
-                      className={`flex-1 py-3 rounded-xl text-[9px] font-bold uppercase tracking-widest transition-all ${theme === t ? "bg-foreground text-background shadow-lg" : "hover:bg-extra-muted/40 text-muted"
-                        }`}
-                    >
-                      {t}
-                    </button>
-                  ))}
-                </div>
-              </div>
+
 
               <div className="space-y-4">
                 <h2 className="text-xs font-semibold uppercase tracking-wider text-muted">Difficulty</h2>
@@ -452,6 +451,22 @@ export default function Home() {
                   </div>
                 </div>
               )}
+
+              <div className="space-y-4">
+                <h2 className="text-xs font-semibold uppercase tracking-wider text-muted">Appearance</h2>
+                <div className="flex gap-2 p-1 bg-extra-muted/20 rounded-2xl">
+                  {['light', 'dark', 'system'].map((t) => (
+                    <button
+                      key={t}
+                      onClick={() => setTheme(t)}
+                      className={`flex-1 py-3 rounded-xl text-[9px] font-bold uppercase tracking-widest transition-all ${theme === t ? "bg-foreground text-background shadow-lg" : "hover:bg-extra-muted/40 text-muted"
+                        }`}
+                    >
+                      {t}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </motion.div>
           </motion.div>
         )}

@@ -1,19 +1,21 @@
 "use client";
 
 import React, { useRef, useEffect, useState, useCallback } from "react";
+import { Undo2, Redo2 } from "lucide-react";
 
 interface DrawingCanvasProps {
     wordId: string;
-    onNext: () => void;
     penThickness?: number;
     penColor?: string;
+    isIOS?: boolean;
 }
 
-export default function DrawingCanvas({ wordId, onNext, penThickness, penColor }: DrawingCanvasProps) {
+export default function DrawingCanvas({ wordId, penThickness, penColor, isIOS }: DrawingCanvasProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [isDrawing, setIsDrawing] = useState(false);
     const lastPosRef = useRef<{ x: number; y: number } | null>(null);
-    const lastTapRef = useRef<number>(0);
+    const [undoStack, setUndoStack] = useState<ImageData[]>([]);
+    const [redoStack, setRedoStack] = useState<ImageData[]>([]);
 
     const clearCanvas = useCallback(() => {
         const canvas = canvasRef.current;
@@ -29,6 +31,10 @@ export default function DrawingCanvas({ wordId, onNext, penThickness, penColor }
 
     // Clear canvas when the word changes
     useEffect(() => {
+        setTimeout(() => {
+            setUndoStack([]);
+            setRedoStack([]);
+        }, 0);
         clearCanvas();
     }, [wordId, clearCanvas]);
 
@@ -79,17 +85,6 @@ export default function DrawingCanvas({ wordId, onNext, penThickness, penColor }
     };
 
     const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
-        // Double tap detection
-        // eslint-disable-next-line react-hooks/purity
-        const now = Date.now();
-        if (now - lastTapRef.current < 300) {
-            clearCanvas();
-            onNext();
-            lastTapRef.current = 0;
-            return;
-        }
-        lastTapRef.current = now;
-
         if (e.pointerType !== "pen") {
             return;
         }
@@ -103,6 +98,14 @@ export default function DrawingCanvas({ wordId, onNext, penThickness, penColor }
 
         if (canvasRef.current) {
             canvasRef.current.setPointerCapture(e.pointerId);
+
+            // Save state for undo
+            const ctx = canvasRef.current.getContext("2d");
+            if (ctx) {
+                const currentData = ctx.getImageData(0, 0, canvasRef.current.width, canvasRef.current.height);
+                setUndoStack(prev => [...prev, currentData]);
+                setRedoStack([]);
+            }
         }
 
         setIsDrawing(true);
@@ -127,6 +130,34 @@ export default function DrawingCanvas({ wordId, onNext, penThickness, penColor }
         lastPosRef.current = null;
         if (canvasRef.current && canvasRef.current.hasPointerCapture(e.pointerId)) {
             canvasRef.current.releasePointerCapture(e.pointerId);
+        }
+    };
+
+    const undo = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (undoStack.length === 0) return;
+        const canvas = canvasRef.current;
+        const ctx = canvas?.getContext("2d");
+        if (canvas && ctx) {
+            const currentData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            setRedoStack(prev => [...prev, currentData]);
+            const previousState = undoStack[undoStack.length - 1];
+            ctx.putImageData(previousState, 0, 0);
+            setUndoStack(prev => prev.slice(0, -1));
+        }
+    };
+
+    const redo = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (redoStack.length === 0) return;
+        const canvas = canvasRef.current;
+        const ctx = canvas?.getContext("2d");
+        if (canvas && ctx) {
+            const currentData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            setUndoStack(prev => [...prev, currentData]);
+            const nextState = redoStack[redoStack.length - 1];
+            ctx.putImageData(nextState, 0, 0);
+            setRedoStack(prev => prev.slice(0, -1));
         }
     };
 
@@ -161,15 +192,35 @@ export default function DrawingCanvas({ wordId, onNext, penThickness, penColor }
     };
 
     return (
-        <canvas
-            ref={canvasRef}
-            className="absolute inset-0 w-full h-full z-10 touch-none pointer-events-auto rounded-xl"
-            onPointerDown={handlePointerDown}
-            onPointerMove={handlePointerMove}
-            onPointerUp={handlePointerUpOrOut}
-            onPointerCancel={handlePointerUpOrOut}
-            onPointerOut={handlePointerUpOrOut}
-            onClick={(e) => e.stopPropagation()} // Prevent bubble to parent div which focuses input
-        />
+        <>
+            <canvas
+                ref={canvasRef}
+                className="absolute inset-0 w-full h-full z-10 touch-none pointer-events-auto rounded-xl"
+                onPointerDown={handlePointerDown}
+                onPointerMove={handlePointerMove}
+                onPointerUp={handlePointerUpOrOut}
+                onPointerCancel={handlePointerUpOrOut}
+                onPointerOut={handlePointerUpOrOut}
+                onClick={(e) => e.stopPropagation()} // Prevent bubble to parent div which focuses input
+            />
+            {isIOS && (
+                <div className="absolute top-2 right-4 flex gap-3 z-30 pointer-events-none">
+                    <button
+                        onClick={undo}
+                        disabled={undoStack.length === 0}
+                        className="pointer-events-auto p-3 bg-background/80 backdrop-blur-md rounded-full border border-extra-muted text-muted hover:text-foreground disabled:opacity-30 transition-all shadow-sm"
+                    >
+                        <Undo2 size={24} />
+                    </button>
+                    <button
+                        onClick={redo}
+                        disabled={redoStack.length === 0}
+                        className="pointer-events-auto p-3 bg-background/80 backdrop-blur-md rounded-full border border-extra-muted text-muted hover:text-foreground disabled:opacity-30 transition-all shadow-sm"
+                    >
+                        <Redo2 size={24} />
+                    </button>
+                </div>
+            )}
+        </>
     );
 }

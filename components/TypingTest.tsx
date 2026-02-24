@@ -5,7 +5,7 @@ import { Word } from "@/lib/types";
 import { motion, AnimatePresence } from "framer-motion";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { Volume2, Loader2, Volume1 } from "lucide-react";
+import { Volume2, Loader2, Volume1, ChevronLeft, ChevronRight } from "lucide-react";
 import DrawingCanvas from "./DrawingCanvas";
 
 const TTS_LANG_MAP: Record<string, string> = {
@@ -27,6 +27,7 @@ function cn(...inputs: ClassValue[]) {
 interface TypingTestProps {
     word: Word;
     onComplete: () => void;
+    onBack?: () => void;
     onMismatch?: () => void;
     onSpeak: (text: string, lang: string) => void;
     isSpeaking?: boolean;
@@ -36,7 +37,7 @@ interface TypingTestProps {
     penColor?: string;
 }
 
-export default function TypingTest({ word, onComplete, onMismatch, onSpeak, isSpeaking, isPending, isIOS, penThickness, penColor }: TypingTestProps) {
+export default function TypingTest({ word, onComplete, onBack, onMismatch, onSpeak, isSpeaking, isPending, isIOS, penThickness, penColor }: TypingTestProps) {
     const [userInput, setUserInput] = useState("");
     const inputRef = useRef<HTMLInputElement>(null);
     const [isFocused, setIsFocused] = useState(true);
@@ -111,13 +112,26 @@ export default function TypingTest({ word, onComplete, onMismatch, onSpeak, isSp
         >
             <DrawingCanvas
                 wordId={word.id}
-                onNext={() => {
-                    onComplete();
-                    setUserInput("");
-                }}
                 penThickness={penThickness}
                 penColor={penColor}
+                isIOS={isIOS}
             />
+            {isIOS && (
+                <>
+                    <button
+                        onClick={() => { onBack?.(); setUserInput(""); }}
+                        className="absolute left-0 lg:-left-12 top-1/2 -translate-y-1/2 p-4 text-muted hover:text-foreground z-30 transition-colors bg-background/50 backdrop-blur-sm rounded-full shadow-sm sm:left-4"
+                    >
+                        <ChevronLeft size={36} />
+                    </button>
+                    <button
+                        onClick={() => { onComplete(); setUserInput(""); }}
+                        className="absolute right-0 lg:-right-12 top-1/2 -translate-y-1/2 p-4 text-muted hover:text-foreground z-30 transition-colors bg-background/50 backdrop-blur-sm rounded-full shadow-sm sm:right-4"
+                    >
+                        <ChevronRight size={36} />
+                    </button>
+                </>
+            )}
             <input
                 ref={inputRef}
                 type="text"
@@ -178,34 +192,34 @@ export default function TypingTest({ word, onComplete, onMismatch, onSpeak, isSp
                     className="flex flex-col items-center gap-6 relative z-20 pointer-events-auto"
                 >
                     <div className={cn(
-                        "text-6xl text-muted/60 transition-colors",
+                        "text-6xl md:text-7xl lg:text-8xl text-muted/60 transition-colors",
                         word.language === 'ar' || word.language === 'ur' ? "font-arabic" : "font-sans"
                     )} dir={word.language === 'ar' || word.language === 'ur' ? "rtl" : "ltr"}>
                         {word.original}
                     </div>
-                    <div className="text-[10px] font-mono text-muted/40 uppercase tracking-[0.5em] mt-2">
+                    <div className="text-[12px] md:text-sm font-mono text-muted/50 uppercase tracking-[0.5em] mt-2">
                         {word.definition}
                     </div>
 
-                    <div className="mt-6 flex items-center justify-center gap-3 text-[10px] font-mono tracking-[0.1em] text-muted z-10">
+                    <div className="mt-8 flex items-center justify-center gap-4 text-xs md:text-sm font-mono tracking-[0.15em] text-muted z-10">
                         <button
                             onClick={(e) => { e.stopPropagation(); setAudioMode("en"); }}
-                            className={`transition-colors px-2 py-1 rounded-md ${audioMode === "en" ? "bg-extra-muted text-foreground" : "hover:text-foreground"}`}
+                            className={`transition-colors px-3 py-2 rounded-lg ${audioMode === "en" ? "bg-extra-muted text-foreground" : "hover:text-foreground"}`}
                         >
                             EN
                         </button>
-                        <span className="opacity-20 text-extra-muted">|</span>
+                        <span className="opacity-20 text-extra-muted mx-1">|</span>
                         <button
                             onClick={(e) => { e.stopPropagation(); setAudioMode("original"); }}
-                            className={`transition-colors px-2 py-1 rounded-md ${audioMode === "original" ? "bg-extra-muted text-foreground" : "hover:text-foreground"}`}
+                            className={`transition-colors px-3 py-2 rounded-lg ${audioMode === "original" ? "bg-extra-muted text-foreground" : "hover:text-foreground"}`}
                         >
                             {(word.language || "EN").toUpperCase()}
                         </button>
 
                         <button
                             className={cn(
-                                "ml-2 p-2 rounded-full transition-all flex justify-center items-center w-8 h-8",
-                                isSpeaking ? "text-accent" : "hover:bg-extra-muted/50 hover:text-foreground"
+                                "ml-3 p-3 rounded-full transition-all flex justify-center items-center w-12 h-12",
+                                isSpeaking ? "text-accent bg-accent/5" : "hover:bg-extra-muted/50 border border-transparent hover:border-extra-muted hover:text-foreground"
                             )}
                             onClick={(e) => {
                                 e.stopPropagation();
@@ -216,11 +230,11 @@ export default function TypingTest({ word, onComplete, onMismatch, onSpeak, isSp
                             disabled={isPending}
                         >
                             {isPending ? (
-                                <Loader2 size={14} className="animate-spin text-muted" />
+                                <Loader2 size={20} className="animate-spin text-muted" />
                             ) : isSpeaking ? (
-                                <Volume1 size={14} className="animate-pulse" />
+                                <Volume1 size={20} className="animate-pulse" />
                             ) : (
-                                <Volume2 size={14} />
+                                <Volume2 size={20} />
                             )}
                         </button>
                     </div>
@@ -232,9 +246,9 @@ export default function TypingTest({ word, onComplete, onMismatch, onSpeak, isSp
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 3 }}
-                className="absolute -bottom-12 text-[10px] text-muted font-mono opacity-40 select-none text-center"
+                className="absolute -bottom-16 text-[10px] md:text-xs text-muted font-mono opacity-40 select-none text-center"
             >
-                {isIOS ? "Press TAB to skip • Double tap to skip or go next" : "Press TAB to skip"}
+                {isIOS ? "Use side arrows to navigate" : "Press TAB to skip"}
             </motion.div>
         </div>
     );
