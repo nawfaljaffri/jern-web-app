@@ -8,9 +8,9 @@ import { twMerge } from "tailwind-merge";
 import { Volume2 } from "lucide-react";
 
 const TTS_LANG_MAP: Record<string, string> = {
-    ar: "ar",
+    ar: "ar-SA",
     ur: "ur",
-    zh: "zh-CN",
+    zh: "zh",
     ru: "ru",
     es: "es",
     de: "de",
