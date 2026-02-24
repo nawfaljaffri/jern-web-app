@@ -13,7 +13,7 @@ const notoArabic = Noto_Sans_Arabic({
 });
 
 export const metadata: Metadata = {
-  title: "JERN | Minimalist Language Learning",
+  title: "JERN",
   description: "A minimalist transliteration typing test for language learners.",
 };
 
