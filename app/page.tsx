@@ -37,7 +37,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { speak, stop, voices } = useTTS();
+  const { speak, stop, voices, isSpeaking, isPending } = useTTS();
   const historyRef = useRef<Word[]>([]);
   const wordsSinceRecallRef = useRef(0);
 
@@ -277,6 +277,8 @@ export default function Home() {
               word={currentWord}
               onComplete={handleComplete}
               onSpeak={(text, lang) => speak(text, lang, false)}
+              isSpeaking={isSpeaking}
+              isPending={isPending}
             />
           ) : (
             <div className="text-muted font-mono animate-pulse">Replenishing pool...</div>

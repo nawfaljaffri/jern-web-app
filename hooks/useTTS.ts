@@ -9,6 +9,8 @@ export function useTTS() {
 
     // We store voices in state so components can react if needed
     const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+    const [isSpeaking, setIsSpeaking] = useState(false);
+    const [isPending, setIsPending] = useState(false);
 
     useEffect(() => {
         if (typeof window !== "undefined" && window.speechSynthesis) {
@@ -42,6 +44,8 @@ export function useTTS() {
             synthRef.current.cancel();
         }
         currentUtteranceRef.current = null;
+        setIsSpeaking(false);
+        setIsPending(false);
     }, []);
 
     const speak = useCallback((text: string, lang: string = "en-US", repeat: boolean = false) => {
@@ -53,6 +57,8 @@ export function useTTS() {
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = lang;
         utterance.rate = 0.9;
+
+        setIsPending(true);
 
         // Smart Voice Selection logic
         if (voices.length > 0) {
@@ -72,18 +78,36 @@ export function useTTS() {
 
         currentUtteranceRef.current = utterance;
 
+        utterance.onstart = () => {
+            if (currentUtteranceRef.current === utterance) {
+                setIsPending(false);
+                setIsSpeaking(true);
+            }
+        };
+
         utterance.onend = () => {
-            if (repeat && currentUtteranceRef.current === utterance) {
-                repeatTimeoutRef.current = setTimeout(() => {
-                    if (currentUtteranceRef.current === utterance) {
-                        synthRef.current?.speak(utterance);
-                    }
-                }, 1500);
+            if (currentUtteranceRef.current === utterance) {
+                setIsSpeaking(false);
+                if (repeat) {
+                    repeatTimeoutRef.current = setTimeout(() => {
+                        if (currentUtteranceRef.current === utterance) {
+                            synthRef.current?.speak(utterance);
+                        }
+                    }, 1500);
+                }
+            }
+        };
+
+        utterance.onerror = (e) => {
+            if (currentUtteranceRef.current === utterance) {
+                setIsPending(false);
+                setIsSpeaking(false);
+                console.error("Speech Synthesis Error:", e);
             }
         };
 
         synthRef.current.speak(utterance);
     }, [stop, voices]);
 
-    return { speak, stop, voices };
+    return { speak, stop, voices, isSpeaking, isPending };
 }

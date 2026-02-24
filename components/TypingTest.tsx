@@ -5,7 +5,7 @@ import { Word } from "@/lib/types";
 import { motion, AnimatePresence } from "framer-motion";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { Volume2 } from "lucide-react";
+import { Volume2, Loader2, Volume1 } from "lucide-react";
 
 const TTS_LANG_MAP: Record<string, string> = {
     ar: "ar-SA",
@@ -28,9 +28,11 @@ interface TypingTestProps {
     onComplete: () => void;
     onMismatch?: () => void;
     onSpeak: (text: string, lang: string) => void;
+    isSpeaking?: boolean;
+    isPending?: boolean;
 }
 
-export default function TypingTest({ word, onComplete, onMismatch, onSpeak }: TypingTestProps) {
+export default function TypingTest({ word, onComplete, onMismatch, onSpeak, isSpeaking, isPending }: TypingTestProps) {
     const [userInput, setUserInput] = useState("");
     const inputRef = useRef<HTMLInputElement>(null);
     const [isFocused, setIsFocused] = useState(true);
@@ -186,21 +188,29 @@ export default function TypingTest({ word, onComplete, onMismatch, onSpeak }: Ty
                         </button>
 
                         <button
-                            className="ml-2 p-2 rounded-full hover:bg-extra-muted/50 hover:text-foreground transition-all"
+                            className={cn(
+                                "ml-2 p-2 rounded-full transition-all flex justify-center items-center w-8 h-8",
+                                isSpeaking ? "text-accent" : "hover:bg-extra-muted/50 hover:text-foreground"
+                            )}
                             onClick={(e) => {
                                 e.stopPropagation();
                                 const text = audioMode === "en" ? word.definition : word.original;
                                 const lang = audioMode === "en" ? "en-US" : (word.language ? TTS_LANG_MAP[word.language] : "en-US");
                                 onSpeak(text, lang || "en-US");
                             }}
+                            disabled={isPending}
                         >
-                            <Volume2 size={14} />
+                            {isPending ? (
+                                <Loader2 size={14} className="animate-spin text-muted" />
+                            ) : isSpeaking ? (
+                                <Volume1 size={14} className="animate-pulse" />
+                            ) : (
+                                <Volume2 size={14} />
+                            )}
                         </button>
                     </div>
                 </motion.div>
             </AnimatePresence>
-
-
 
             {/* Hint for skip */}
             <motion.div
