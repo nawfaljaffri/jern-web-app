@@ -242,9 +242,9 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="absolute top-10 flex flex-col items-center gap-2 w-full z-10">
+          <div className="absolute top-10 flex flex-col items-center gap-2 w-full z-10 px-4">
             <AnimatePresence>
-              {['ur', 'ja', 'ko'].includes(settings.language) && (
+              {['ja', 'ko'].includes(settings.language) && (
                 <motion.div
                   key="unstable-warning"
                   initial={{ opacity: 0, y: -10 }}
@@ -261,7 +261,7 @@ export default function Home() {
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className="text-[9px] font-mono uppercase tracking-widest text-red-500/80 bg-red-500/10 border border-red-500/20 px-4 py-1.5 rounded-full text-center max-w-sm"
+                  className="text-[9px] font-mono uppercase tracking-widest text-red-500/80 bg-red-500/10 border border-red-500/20 px-6 py-2.5 rounded-xl text-center max-w-lg leading-loose"
                 >
                   🔇 Missing Voice Data: You may need to download the {LANGUAGES.find(l => l.value === settings.language)?.label} voice in your device settings (e.g. Settings &gt; Accessibility &gt; Spoken Content &gt; Voices on iOS).
                 </motion.div>
