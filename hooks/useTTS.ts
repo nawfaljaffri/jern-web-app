@@ -12,6 +12,19 @@ export function useTTS() {
     const [isSpeaking, setIsSpeaking] = useState(false);
     const [isPending, setIsPending] = useState(false);
 
+    const stop = useCallback(() => {
+        if (repeatTimeoutRef.current) {
+            clearTimeout(repeatTimeoutRef.current);
+            repeatTimeoutRef.current = null;
+        }
+        if (synthRef.current) {
+            synthRef.current.cancel();
+        }
+        currentUtteranceRef.current = null;
+        setIsSpeaking(false);
+        setIsPending(false);
+    }, []);
+
     useEffect(() => {
         if (typeof window !== "undefined" && window.speechSynthesis) {
             synthRef.current = window.speechSynthesis;
@@ -19,7 +32,9 @@ export function useTTS() {
             // Function to load voices
             const loadVoices = () => {
                 const availableVoices = window.speechSynthesis.getVoices();
-                setVoices(availableVoices);
+                if (availableVoices.length > 0) {
+                    setVoices(availableVoices);
+                }
             };
 
             // Load immediately (Chrome sometimes has them ready)
@@ -33,20 +48,7 @@ export function useTTS() {
         return () => {
             stop();
         };
-    }, []);
-
-    const stop = useCallback(() => {
-        if (repeatTimeoutRef.current) {
-            clearTimeout(repeatTimeoutRef.current);
-            repeatTimeoutRef.current = null;
-        }
-        if (synthRef.current) {
-            synthRef.current.cancel();
-        }
-        currentUtteranceRef.current = null;
-        setIsSpeaking(false);
-        setIsPending(false);
-    }, []);
+    }, [stop]); // Added stop to dependency array as it's used in cleanup
 
     const speak = useCallback((text: string, lang: string = "en-US", repeat: boolean = false) => {
         if (!synthRef.current) return;

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Word } from "@/lib/types";
 import { motion, AnimatePresence } from "framer-motion";
 import { clsx, type ClassValue } from "clsx";
@@ -31,20 +31,32 @@ interface TypingTestProps {
     onSpeak: (text: string, lang: string) => void;
     isSpeaking?: boolean;
     isPending?: boolean;
+    isIOS?: boolean;
 }
 
-export default function TypingTest({ word, onComplete, onMismatch, onSpeak, isSpeaking, isPending }: TypingTestProps) {
+export default function TypingTest({ word, onComplete, onMismatch, onSpeak, isSpeaking, isPending, isIOS }: TypingTestProps) {
     const [userInput, setUserInput] = useState("");
     const inputRef = useRef<HTMLInputElement>(null);
     const [isFocused, setIsFocused] = useState(true);
     const [isShaking, setIsShaking] = useState(false);
     const [audioMode, setAudioMode] = useState<"en" | "original">("en");
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         inputRef.current?.focus();
+        // @ts-ignore
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setUserInput("");
+        // @ts-ignore
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setIsShaking(false);
     }, [word]);
+
+    const triggerError = useCallback(() => {
+        setIsShaking(true);
+        onMismatch?.();
+        setTimeout(() => setIsShaking(false), 500);
+    }, [onMismatch]);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -61,7 +73,7 @@ export default function TypingTest({ word, onComplete, onMismatch, onSpeak, isSp
 
         window.addEventListener("keydown", handleKeyDown);
         return () => window.removeEventListener("keydown", handleKeyDown);
-    }, [onComplete, word]);
+    }, [onComplete, word, triggerError]);
 
     const normalizedRomanized = React.useMemo(() => {
         // Strip out accents (NFD), quotes, spaces, hyphens
@@ -92,12 +104,6 @@ export default function TypingTest({ word, onComplete, onMismatch, onSpeak, isSp
                 setUserInput("");
             }, 150);
         }
-    };
-
-    const triggerError = () => {
-        setIsShaking(true);
-        onMismatch?.();
-        setTimeout(() => setIsShaking(false), 500);
     };
 
     return (
@@ -226,9 +232,9 @@ export default function TypingTest({ word, onComplete, onMismatch, onSpeak, isSp
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 3 }}
-                className="absolute -bottom-12 text-[10px] text-muted font-mono opacity-30 select-none"
+                className="absolute -bottom-12 text-[10px] text-muted font-mono opacity-40 select-none text-center"
             >
-                Press TAB to skip
+                {isIOS ? "Press TAB to skip • Double tap to skip or go next" : "Press TAB to skip"}
             </motion.div>
         </div>
     );

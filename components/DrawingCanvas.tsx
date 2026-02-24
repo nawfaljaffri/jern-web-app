@@ -79,6 +79,7 @@ export default function DrawingCanvas({ wordId, onNext, onFocusRequest }: Drawin
 
     const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
         // Double tap detection
+        // eslint-disable-next-line react-hooks/purity
         const now = Date.now();
         if (now - lastTapRef.current < 300) {
             clearCanvas();
@@ -88,13 +89,17 @@ export default function DrawingCanvas({ wordId, onNext, onFocusRequest }: Drawin
         }
         lastTapRef.current = now;
 
-        // Give focus back to the input for typing if not using a pen
         if (e.pointerType !== "pen") {
             onFocusRequest();
             return;
         }
 
         e.preventDefault();
+
+        // Blur any active input so the keyboard hides
+        if (typeof document !== 'undefined' && document.activeElement instanceof HTMLElement) {
+            document.activeElement.blur();
+        }
 
         if (canvasRef.current) {
             canvasRef.current.setPointerCapture(e.pointerId);
@@ -160,6 +165,7 @@ export default function DrawingCanvas({ wordId, onNext, onFocusRequest }: Drawin
             onPointerUp={handlePointerUpOrOut}
             onPointerCancel={handlePointerUpOrOut}
             onPointerOut={handlePointerUpOrOut}
+            onClick={(e) => e.stopPropagation()} // Prevent bubble to parent div which focuses input
         />
     );
 }

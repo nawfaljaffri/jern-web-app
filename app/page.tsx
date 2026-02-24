@@ -242,8 +242,8 @@ export default function Home() {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col items-center justify-center max-w-4xl mx-auto w-full px-6 relative">
-        <div className="w-full flex-col flex items-center mb-24 relative">
-          <div className="w-full flex justify-between items-center opacity-20">
+        <div className="absolute top-0 sm:top-8 w-full flex-col flex items-center pointer-events-none z-10">
+          <div className="w-full flex justify-between items-center opacity-20 pointer-events-auto">
             <div className="text-[10px] font-mono uppercase tracking-[0.4em] flex items-center gap-4">
               <Globe size={12} />
               <span>{LANGUAGES.find(l => l.value === settings.language)?.label} / {settings.difficulty}</span>
@@ -254,7 +254,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="absolute top-10 flex flex-col items-center gap-2 w-full z-10 px-4">
+          <div className="mt-6 flex flex-col items-center gap-2 w-full text-center pointer-events-auto">
             <AnimatePresence>
               {['ja', 'ko'].includes(settings.language) && (
                 <motion.div
@@ -302,6 +302,7 @@ export default function Home() {
               onSpeak={(text, lang) => speak(text, lang, false)}
               isSpeaking={isSpeaking}
               isPending={isPending}
+              isIOS={isIOS}
             />
           ) : (
             <div className="text-muted font-mono animate-pulse">Replenishing pool...</div>
@@ -456,8 +457,14 @@ export default function Home() {
               </div>
 
               <div className="bg-extra-muted/10 p-4 rounded-2xl flex items-center gap-4">
-                <div className="text-[10px] font-mono border border-muted/30 px-2 py-1 rounded bg-background text-foreground uppercase shrink-0">TAB</div>
-                <div className="text-xs text-muted font-medium">Press TAB at any time to skip a difficult word.</div>
+                <div className="text-[10px] font-mono border border-muted/30 px-2 py-1 rounded bg-background text-foreground uppercase shrink-0">
+                  {isIOS ? "PEN" : "TAB"}
+                </div>
+                <div className="text-xs text-muted font-medium">
+                  {isIOS
+                    ? "Double tap the screen with Apple Pencil to skip to the next word. You can also press TAB."
+                    : "Press TAB at any time to skip a difficult word."}
+                </div>
               </div>
 
               <div className="pt-4 border-t border-extra-muted text-center">
