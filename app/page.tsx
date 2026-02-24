@@ -37,9 +37,20 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { speak, stop } = useTTS();
+  const { speak, stop, voices } = useTTS();
   const historyRef = useRef<Word[]>([]);
   const wordsSinceRecallRef = useRef(0);
+
+  const isVoiceMissing = React.useMemo(() => {
+    if (voices.length === 0) return false; // Still loading or not supported
+    const langCode = LANGUAGES.find(l => l.value === settings.language)?.ttsLocale || "en-US";
+    let matchedVoice = voices.find(v => v.lang.toLowerCase() === langCode.toLowerCase());
+    if (!matchedVoice) {
+      const baseLang = langCode.split('-')[0].toLowerCase();
+      matchedVoice = voices.find(v => v.lang.toLowerCase().startsWith(baseLang));
+    }
+    return !matchedVoice;
+  }, [voices, settings.language]);
 
   // 1. Data Loader - Fetch JSON asynchronously
   const loadDataPack = useCallback(async (lang: Language) => {
@@ -231,18 +242,32 @@ export default function Home() {
             </div>
           </div>
 
-          <AnimatePresence>
-            {['ur', 'ja', 'ko'].includes(settings.language) && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="absolute top-10 text-[9px] font-mono uppercase tracking-widest text-orange-500/80 bg-orange-500/10 border border-orange-500/20 px-4 py-1.5 rounded-full text-center"
-              >
-                ⚠️ This language is currently under development and may be unstable or inaccurate at times.
-              </motion.div>
-            )}
-          </AnimatePresence>
+          <div className="absolute top-10 flex flex-col items-center gap-2 w-full z-10">
+            <AnimatePresence>
+              {['ur', 'ja', 'ko'].includes(settings.language) && (
+                <motion.div
+                  key="unstable-warning"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="text-[9px] font-mono uppercase tracking-widest text-orange-500/80 bg-orange-500/10 border border-orange-500/20 px-4 py-1.5 rounded-full text-center"
+                >
+                  ⚠️ This language is currently under development and may be unstable or inaccurate at times.
+                </motion.div>
+              )}
+              {isVoiceMissing && (
+                <motion.div
+                  key="missing-voice-warning"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="text-[9px] font-mono uppercase tracking-widest text-red-500/80 bg-red-500/10 border border-red-500/20 px-4 py-1.5 rounded-full text-center max-w-sm"
+                >
+                  🔇 Missing Voice Data: You may need to download the {LANGUAGES.find(l => l.value === settings.language)?.label} voice in your device settings (e.g. Settings &gt; Accessibility &gt; Spoken Content &gt; Voices on iOS).
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
 
         <AnimatePresence mode="wait">

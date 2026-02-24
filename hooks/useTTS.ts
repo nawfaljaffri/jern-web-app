@@ -1,15 +1,32 @@
 "use client";
 
-import { useCallback, useRef, useEffect } from "react";
+import { useCallback, useRef, useEffect, useState } from "react";
 
 export function useTTS() {
     const synthRef = useRef<SpeechSynthesis | null>(null);
     const repeatTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const currentUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
+    // We store voices in state so components can react if needed
+    const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+
     useEffect(() => {
-        if (typeof window !== "undefined") {
+        if (typeof window !== "undefined" && window.speechSynthesis) {
             synthRef.current = window.speechSynthesis;
+
+            // Function to load voices
+            const loadVoices = () => {
+                const availableVoices = window.speechSynthesis.getVoices();
+                setVoices(availableVoices);
+            };
+
+            // Load immediately (Chrome sometimes has them ready)
+            loadVoices();
+
+            // Safari / some engines load them asynchronously
+            if (window.speechSynthesis.onvoiceschanged !== undefined) {
+                window.speechSynthesis.onvoiceschanged = loadVoices;
+            }
         }
         return () => {
             stop();
@@ -36,6 +53,23 @@ export function useTTS() {
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = lang;
         utterance.rate = 0.9;
+
+        // Smart Voice Selection logic
+        if (voices.length > 0) {
+            // 1. Try an exact match (e.g. 'fr-FR')
+            let matchedVoice = voices.find(v => v.lang.toLowerCase() === lang.toLowerCase());
+
+            // 2. Try matching just the base language (e.g. 'fr')
+            if (!matchedVoice) {
+                const baseLang = lang.split('-')[0].toLowerCase();
+                matchedVoice = voices.find(v => v.lang.toLowerCase().startsWith(baseLang));
+            }
+
+            if (matchedVoice) {
+                utterance.voice = matchedVoice;
+            }
+        }
+
         currentUtteranceRef.current = utterance;
 
         utterance.onend = () => {
@@ -49,7 +83,7 @@ export function useTTS() {
         };
 
         synthRef.current.speak(utterance);
-    }, [stop]);
+    }, [stop, voices]);
 
-    return { speak, stop };
+    return { speak, stop, voices };
 }
