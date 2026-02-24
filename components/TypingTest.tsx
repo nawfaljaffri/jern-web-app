@@ -192,34 +192,52 @@ export default function TypingTest({ word, onComplete, onBack, onMismatch, onSpe
                     className="flex flex-col items-center gap-6 relative z-20 pointer-events-auto"
                 >
                     <div className={cn(
-                        "text-6xl md:text-7xl lg:text-8xl text-muted/60 transition-colors",
+                        "transition-colors",
+                        isIOS ? "text-6xl md:text-7xl lg:text-[7rem] text-muted/70" : "text-6xl text-muted/60",
                         word.language === 'ar' || word.language === 'ur' ? "font-arabic" : "font-sans"
                     )} dir={word.language === 'ar' || word.language === 'ur' ? "rtl" : "ltr"}>
                         {word.original}
                     </div>
-                    <div className="text-[12px] md:text-sm font-mono text-muted/50 uppercase tracking-[0.5em] mt-2">
+                    <div className={cn(
+                        "font-mono uppercase tracking-[0.5em] mt-2",
+                        isIOS ? "text-[12px] md:text-sm text-muted/60" : "text-[10px] text-muted/40"
+                    )}>
                         {word.definition}
                     </div>
 
-                    <div className="mt-8 flex items-center justify-center gap-4 text-xs md:text-sm font-mono tracking-[0.15em] text-muted z-10">
+                    <div className={cn(
+                        "flex items-center justify-center font-mono text-muted z-10",
+                        isIOS ? "mt-8 gap-4 text-xs md:text-sm tracking-[0.15em]" : "mt-6 gap-3 text-[10px] tracking-[0.1em]"
+                    )}>
                         <button
                             onClick={(e) => { e.stopPropagation(); setAudioMode("en"); }}
-                            className={`transition-colors px-3 py-2 rounded-lg ${audioMode === "en" ? "bg-extra-muted text-foreground" : "hover:text-foreground"}`}
+                            className={cn(
+                                "transition-colors",
+                                isIOS ? "px-3 py-2 rounded-lg" : "px-2 py-1 rounded-md",
+                                audioMode === "en" ? "bg-extra-muted text-foreground" : "hover:text-foreground"
+                            )}
                         >
                             EN
                         </button>
-                        <span className="opacity-20 text-extra-muted mx-1">|</span>
+                        <span className={cn(
+                            isIOS ? "opacity-30 text-extra-muted mx-1" : "opacity-20 text-extra-muted"
+                        )}>|</span>
                         <button
                             onClick={(e) => { e.stopPropagation(); setAudioMode("original"); }}
-                            className={`transition-colors px-3 py-2 rounded-lg ${audioMode === "original" ? "bg-extra-muted text-foreground" : "hover:text-foreground"}`}
+                            className={cn(
+                                "transition-colors",
+                                isIOS ? "px-3 py-2 rounded-lg" : "px-2 py-1 rounded-md",
+                                audioMode === "original" ? "bg-extra-muted text-foreground" : "hover:text-foreground"
+                            )}
                         >
                             {(word.language || "EN").toUpperCase()}
                         </button>
 
                         <button
                             className={cn(
-                                "ml-3 p-3 rounded-full transition-all flex justify-center items-center w-12 h-12",
-                                isSpeaking ? "text-accent bg-accent/5" : "hover:bg-extra-muted/50 border border-transparent hover:border-extra-muted hover:text-foreground"
+                                "transition-all flex justify-center items-center",
+                                isIOS ? "ml-3 p-3 rounded-full w-12 h-12" : "ml-2 p-2 rounded-full w-8 h-8",
+                                isSpeaking ? (isIOS ? "text-accent bg-accent/5" : "text-accent") : (isIOS ? "hover:bg-extra-muted/50 border border-transparent hover:border-extra-muted hover:text-foreground" : "hover:bg-extra-muted/50 hover:text-foreground")
                             )}
                             onClick={(e) => {
                                 e.stopPropagation();
@@ -230,11 +248,11 @@ export default function TypingTest({ word, onComplete, onBack, onMismatch, onSpe
                             disabled={isPending}
                         >
                             {isPending ? (
-                                <Loader2 size={20} className="animate-spin text-muted" />
+                                <Loader2 size={isIOS ? 20 : 14} className="animate-spin text-muted" />
                             ) : isSpeaking ? (
-                                <Volume1 size={20} className="animate-pulse" />
+                                <Volume1 size={isIOS ? 20 : 14} className="animate-pulse" />
                             ) : (
-                                <Volume2 size={20} />
+                                <Volume2 size={isIOS ? 20 : 14} />
                             )}
                         </button>
                     </div>
@@ -246,7 +264,10 @@ export default function TypingTest({ word, onComplete, onBack, onMismatch, onSpe
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 3 }}
-                className="absolute -bottom-16 text-[10px] md:text-xs text-muted font-mono opacity-40 select-none text-center"
+                className={cn(
+                    "absolute opacity-40 select-none text-center font-mono text-muted",
+                    isIOS ? "-bottom-16 text-[10px] md:text-xs" : "-bottom-12 text-[10px]"
+                )}
             >
                 {isIOS ? "Use side arrows to navigate" : "Press TAB to skip"}
             </motion.div>

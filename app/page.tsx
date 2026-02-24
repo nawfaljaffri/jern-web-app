@@ -254,58 +254,103 @@ export default function Home() {
 
       {/* Main Content */}
       <div
-        className="flex-1 flex flex-col items-center justify-center max-w-4xl mx-auto w-full px-6 relative select-none"
+        className={cn(
+          "flex-1 flex flex-col justify-center relative select-none mx-auto w-full",
+          isIOS ? "items-center max-w-4xl px-6" : "max-w-2xl px-4"
+        )}
       >
-        <div className="absolute top-0 sm:top-8 w-full flex-col flex items-center pointer-events-none z-10 pt-4">
-          <div className="w-full flex justify-between items-center opacity-30 pointer-events-auto px-4">
-            <div className="text-[10px] md:text-sm font-mono uppercase tracking-[0.4em] flex items-center gap-4">
-              <Globe className="w-3 md:w-4 h-3 md:h-4" />
-              <span>{LANGUAGES.find(l => l.value === settings.language)?.label} / {settings.difficulty}</span>
+        {isIOS ? (
+          <div className="absolute top-0 sm:top-8 w-full flex-col flex items-center pointer-events-none z-10 pt-4">
+            <div className="w-full flex justify-between items-center opacity-30 pointer-events-auto px-4">
+              <div className="text-[10px] md:text-sm font-mono uppercase tracking-[0.4em] flex items-center gap-4">
+                <Globe className="w-3 md:w-4 h-3 md:h-4" />
+                <span>{LANGUAGES.find(l => l.value === settings.language)?.label} / {settings.difficulty}</span>
+              </div>
+              <div className="text-[10px] md:text-sm font-mono uppercase tracking-[0.2em] flex items-center gap-2">
+                <CheckCircle2 className="w-3 md:w-4 h-3 md:h-4" />
+                <span>Mastered: {history.length}</span>
+              </div>
             </div>
-            <div className="text-[10px] md:text-sm font-mono uppercase tracking-[0.2em] flex items-center gap-2">
-              <CheckCircle2 className="w-3 md:w-4 h-3 md:h-4" />
-              <span>Mastered: {history.length}</span>
-            </div>
-          </div>
 
-          <div className="mt-6 flex flex-col items-center gap-2 w-full text-center pointer-events-auto px-4 top-10 absolute">
-            <AnimatePresence>
-              {['ja', 'ko'].includes(settings.language) && (
-                <motion.div
-                  key="unstable-warning"
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="text-[9px] font-mono uppercase tracking-widest text-orange-500/80 bg-orange-500/10 border border-orange-500/20 px-4 py-1.5 rounded-full text-center"
-                >
-                  ⚠️ This language is currently under development and may be unstable or inaccurate at times.
-                </motion.div>
-              )}
-              {settings.language === 'ur' && isIOS && (
-                <motion.div
-                  key="urdu-ios-warning"
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="text-[9px] font-mono uppercase tracking-widest text-red-500/80 bg-red-500/10 border border-red-500/20 px-6 py-2.5 rounded-xl text-center max-w-lg leading-loose"
-                >
-                  🔇 Apple iOS currently does not support Urdu Text-To-Speech natively. Audio may only work on Android or Desktop browsers.
-                </motion.div>
-              )}
-              {isVoiceMissing && settings.language !== 'ur' && (
-                <motion.div
-                  key="missing-voice-warning"
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="text-[9px] font-mono uppercase tracking-widest text-red-500/80 bg-red-500/10 border border-red-500/20 px-6 py-2.5 rounded-xl text-center max-w-lg leading-loose"
-                >
-                  🔇 Missing Voice Data: You may need to download the {LANGUAGES.find(l => l.value === settings.language)?.label} voice in your device settings (e.g. Settings &gt; Accessibility &gt; Spoken Content &gt; Voices on iOS).
-                </motion.div>
-              )}
-            </AnimatePresence>
+            <div className="mt-6 flex flex-col items-center gap-2 w-full text-center pointer-events-auto px-4 top-10 absolute">
+              <AnimatePresence>
+                {['ja', 'ko'].includes(settings.language) && (
+                  <motion.div
+                    key="unstable-warning"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="text-[9px] font-mono uppercase tracking-widest text-orange-500/80 bg-orange-500/10 border border-orange-500/20 px-4 py-1.5 rounded-full text-center"
+                  >
+                    ⚠️ This language is currently under development and may be unstable or inaccurate at times.
+                  </motion.div>
+                )}
+                {settings.language === 'ur' && isIOS && (
+                  <motion.div
+                    key="urdu-ios-warning"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="text-[9px] font-mono uppercase tracking-widest text-red-500/80 bg-red-500/10 border border-red-500/20 px-6 py-2.5 rounded-xl text-center max-w-lg leading-loose"
+                  >
+                    🔇 Apple iOS currently does not support Urdu Text-To-Speech natively. Audio may only work on Android or Desktop browsers.
+                  </motion.div>
+                )}
+                {isVoiceMissing && settings.language !== 'ur' && (
+                  <motion.div
+                    key="missing-voice-warning"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="text-[9px] font-mono uppercase tracking-widest text-red-500/80 bg-red-500/10 border border-red-500/20 px-6 py-2.5 rounded-xl text-center max-w-lg leading-loose"
+                  >
+                    🔇 Missing Voice Data: You may need to download the {LANGUAGES.find(l => l.value === settings.language)?.label} voice in your device settings (e.g. Settings &gt; Accessibility &gt; Spoken Content &gt; Voices on iOS).
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
-        </div>
+        ) : (
+          <>
+            <div className="w-full flex justify-between items-center opacity-30 mt-4 md:mt-8 pointer-events-none px-4 md:px-8 absolute top-0">
+              <div className="text-[10px] font-mono uppercase tracking-[0.4em] flex items-center gap-4 pointer-events-auto">
+                <Globe className="w-3 h-3" />
+                <span>{LANGUAGES.find(l => l.value === settings.language)?.label} / {settings.difficulty}</span>
+              </div>
+              <div className="text-[10px] font-mono uppercase tracking-[0.2em] flex items-center gap-2 pointer-events-auto">
+                <CheckCircle2 className="w-3 h-3" />
+                <span>Mastered: {history.length}</span>
+              </div>
+            </div>
+
+            <div className="absolute top-20 w-full flex flex-col items-center gap-2 text-center pointer-events-auto px-4 z-10 w-full left-0 right-0">
+              <AnimatePresence>
+                {['ja', 'ko'].includes(settings.language) && (
+                  <motion.div
+                    key="unstable-warning-web"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="text-[9px] font-mono uppercase tracking-widest text-orange-500/80 bg-orange-500/10 border border-orange-500/20 px-4 py-1.5 rounded-full text-center max-w-max mx-auto"
+                  >
+                    ⚠️ This language is currently under development.
+                  </motion.div>
+                )}
+                {isVoiceMissing && settings.language !== 'ur' && (
+                  <motion.div
+                    key="missing-voice-warning-web"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="text-[9px] font-mono uppercase tracking-widest text-red-500/80 bg-red-500/10 border border-red-500/20 px-6 py-2.5 rounded-xl text-center max-w-md mx-auto leading-loose"
+                  >
+                    🔇 Missing Voice Data: You may need to download the {LANGUAGES.find(l => l.value === settings.language)?.label} voice in your device settings.
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </>
+        )}
 
         <AnimatePresence mode="wait">
           {currentWord ? (
