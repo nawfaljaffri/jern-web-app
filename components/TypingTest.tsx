@@ -5,7 +5,7 @@ import { Word } from "@/lib/types";
 import { motion, AnimatePresence } from "framer-motion";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { Volume2, Loader2, Volume1, ChevronLeft, ChevronRight } from "lucide-react";
+import { Volume2, Loader2, Volume1, ChevronLeft, ChevronRight, Repeat } from "lucide-react";
 import DrawingCanvas from "./DrawingCanvas";
 
 const TTS_LANG_MAP: Record<string, string> = {
@@ -35,14 +35,17 @@ interface TypingTestProps {
     isIOS?: boolean;
     penThickness?: number;
     penColor?: string;
+    isLooping?: boolean;
+    onToggleLoop?: () => void;
 }
 
-export default function TypingTest({ word, onComplete, onBack, onMismatch, onSpeak, isSpeaking, isPending, isIOS, penThickness, penColor }: TypingTestProps) {
+export default function TypingTest({ word, onComplete, onBack, onMismatch, onSpeak, isSpeaking, isPending, isIOS, penThickness, penColor, isLooping, onToggleLoop }: TypingTestProps) {
     const [userInput, setUserInput] = useState("");
     const inputRef = useRef<HTMLInputElement>(null);
     const [isFocused, setIsFocused] = useState(true);
     const [isShaking, setIsShaking] = useState(false);
     const [audioMode, setAudioMode] = useState<"en" | "original">("en");
+    const [loopCounter, setLoopCounter] = useState(0);
 
     useEffect(() => {
         inputRef.current?.focus();
@@ -100,8 +103,16 @@ export default function TypingTest({ word, onComplete, onBack, onMismatch, onSpe
 
         if (value === normalizedRomanized) {
             setTimeout(() => {
-                onComplete();
-                setUserInput("");
+                if (isLooping) {
+                    setUserInput("");
+                    setLoopCounter(prev => prev + 1);
+                    const text = audioMode === "en" ? word.definition : word.original;
+                    const lang = audioMode === "en" ? "en-US" : (word.language ? TTS_LANG_MAP[word.language] : "en-US");
+                    onSpeak(text, lang || "en-US");
+                } else {
+                    onComplete();
+                    setUserInput("");
+                }
             }, 150);
         }
     };
@@ -114,6 +125,7 @@ export default function TypingTest({ word, onComplete, onBack, onMismatch, onSpe
             }}
         >
             <DrawingCanvas
+                key={`${word.id}-${loopCounter}`}
                 wordId={word.id}
                 penThickness={penThickness}
                 penColor={penColor}
@@ -262,6 +274,23 @@ export default function TypingTest({ word, onComplete, onBack, onMismatch, onSpe
                             ) : (
                                 <Volume2 size={isIOS ? 20 : 14} />
                             )}
+                        </button>
+                        <button
+                            className={cn(
+                                "transition-all flex justify-center items-center relative",
+                                isIOS ? "ml-3 p-3 rounded-full w-12 h-12" : "ml-2 p-2 rounded-full w-8 h-8",
+                                isLooping
+                                    ? (isIOS ? "text-accent bg-accent/5 border border-accent/20" : "text-accent border border-accent/20")
+                                    : (isIOS ? "hover:bg-extra-muted/50 border border-transparent hover:border-extra-muted hover:text-foreground" : "hover:bg-extra-muted/50 hover:text-foreground")
+                            )}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onToggleLoop?.();
+                            }}
+                            title="Loop Word"
+                        >
+                            <Repeat size={isIOS ? 20 : 14} />
+                            {isLooping && <span className="absolute -top-1 -right-1 w-2 h-2 bg-accent rounded-full animate-pulse" />}
                         </button>
                     </div>
                 </motion.div>

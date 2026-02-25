@@ -365,6 +365,8 @@ export default function Home() {
               isIOS={isIOS}
               penThickness={settings.penThickness}
               penColor={settings.penColor}
+              isLooping={settings.loopWord}
+              onToggleLoop={() => updateSettings({ loopWord: !settings.loopWord })}
             />
           ) : (
             <div className="text-muted font-mono animate-pulse">Replenishing pool...</div>

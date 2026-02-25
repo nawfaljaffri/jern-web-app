@@ -17,6 +17,7 @@ export interface SessionSettings {
     activeRecall: boolean;
     penThickness?: number;
     penColor?: string;
+    loopWord?: boolean;
 }
 
 export interface SessionStats {
