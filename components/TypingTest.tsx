@@ -163,7 +163,7 @@ export default function TypingTest({ word, onComplete, onBack, onMismatch, onSpe
             <motion.div
                 animate={isShaking ? { x: [-5, 5, -5, 5, 0] } : {}}
                 transition={{ duration: 0.4 }}
-                className="relative text-7xl md:text-8xl lg:text-[9rem] font-medium tracking-tight select-none flex flex-wrap justify-center gap-[0.05em] mb-12 z-0"
+                className="relative text-7xl md:text-8xl lg:text-[9rem] font-medium tracking-tight select-none flex flex-wrap justify-center gap-[0.05em] mb-12 md:mt-4 lg:mt-6 z-0"
                 onClick={(e) => {
                     if (isIOS) {
                         e.stopPropagation();
