@@ -8,9 +8,10 @@ interface DrawingCanvasProps {
     penThickness?: number;
     penColor?: string;
     isIOS?: boolean;
+    clearTrigger?: number;
 }
 
-export default function DrawingCanvas({ wordId, penThickness, penColor, isIOS }: DrawingCanvasProps) {
+export default function DrawingCanvas({ wordId, penThickness, penColor, isIOS, clearTrigger = 0 }: DrawingCanvasProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [isDrawing, setIsDrawing] = useState(false);
     const lastPosRef = useRef<{ x: number; y: number } | null>(null);
@@ -29,14 +30,14 @@ export default function DrawingCanvas({ wordId, penThickness, penColor, isIOS }:
         ctx.clearRect(0, 0, logicalWidth, logicalHeight);
     }, []);
 
-    // Clear canvas when the word changes
+    // Clear canvas when word or trigger changes
     useEffect(() => {
         setTimeout(() => {
             setUndoStack([]);
             setRedoStack([]);
         }, 0);
         clearCanvas();
-    }, [wordId, clearCanvas]);
+    }, [wordId, clearTrigger, clearCanvas]);
 
     useEffect(() => {
         const resizeCanvas = () => {

@@ -5,7 +5,7 @@ import { Word } from "@/lib/types";
 import { motion, AnimatePresence } from "framer-motion";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { Volume2, Loader2, Volume1, ChevronLeft, ChevronRight, Repeat } from "lucide-react";
+import { Volume2, Loader2, Volume1, ChevronLeft, ChevronRight, Repeat, Eraser } from "lucide-react";
 import DrawingCanvas from "./DrawingCanvas";
 
 const TTS_LANG_MAP: Record<string, string> = {
@@ -46,6 +46,7 @@ export default function TypingTest({ word, onComplete, onBack, onMismatch, onSpe
     const [isShaking, setIsShaking] = useState(false);
     const [audioMode, setAudioMode] = useState<"en" | "original">("en");
     const [loopCounter, setLoopCounter] = useState(0);
+    const [clearTrigger, setClearTrigger] = useState(0);
 
     useEffect(() => {
         inputRef.current?.focus();
@@ -130,6 +131,7 @@ export default function TypingTest({ word, onComplete, onBack, onMismatch, onSpe
                 penThickness={penThickness}
                 penColor={penColor}
                 isIOS={isIOS}
+                clearTrigger={clearTrigger}
             />
             {isIOS && (
                 <>
@@ -279,18 +281,30 @@ export default function TypingTest({ word, onComplete, onBack, onMismatch, onSpe
                             className={cn(
                                 "transition-all flex justify-center items-center relative",
                                 isIOS ? "ml-3 p-3 rounded-full w-12 h-12" : "ml-2 p-2 rounded-full w-8 h-8",
-                                isLooping
-                                    ? (isIOS ? "text-accent bg-accent/5 border border-accent/20" : "text-accent border border-accent/20")
-                                    : (isIOS ? "hover:bg-extra-muted/50 border border-transparent hover:border-extra-muted hover:text-foreground" : "hover:bg-extra-muted/50 hover:text-foreground")
+                                isIOS
+                                    ? "hover:bg-extra-muted/50 border border-transparent hover:border-extra-muted hover:text-foreground"
+                                    : isLooping
+                                        ? "text-accent border border-accent/20"
+                                        : "hover:bg-extra-muted/50 hover:text-foreground"
                             )}
                             onClick={(e) => {
                                 e.stopPropagation();
-                                onToggleLoop?.();
+                                if (isIOS) {
+                                    setClearTrigger(prev => prev + 1);
+                                } else {
+                                    onToggleLoop?.();
+                                }
                             }}
-                            title="Loop Word"
+                            title={isIOS ? "Erase Canvas" : "Loop Word"}
                         >
-                            <Repeat size={isIOS ? 20 : 14} />
-                            {isLooping && <span className="absolute -top-1 -right-1 w-2 h-2 bg-accent rounded-full animate-pulse" />}
+                            {isIOS ? (
+                                <Eraser size={20} />
+                            ) : (
+                                <>
+                                    <Repeat size={14} />
+                                    {isLooping && <span className="absolute -top-1 -right-1 w-2 h-2 bg-accent rounded-full animate-pulse" />}
+                                </>
+                            )}
                         </button>
                     </div>
                 </motion.div>
