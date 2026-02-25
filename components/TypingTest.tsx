@@ -29,17 +29,20 @@ interface TypingTestProps {
     onComplete: () => void;
     onBack?: () => void;
     onMismatch?: () => void;
-    onSpeak: (text: string, lang: string) => void;
+    onSpeak: (text: string, lang: string, repeat?: boolean) => void;
+    onStop?: () => void;
     isSpeaking?: boolean;
     isPending?: boolean;
     isIOS?: boolean;
+    isPhone?: boolean;
+    isAudioRepeat?: boolean;
     penThickness?: number;
     penColor?: string;
     isLooping?: boolean;
     onToggleLoop?: () => void;
 }
 
-export default function TypingTest({ word, onComplete, onBack, onMismatch, onSpeak, isSpeaking, isPending, isIOS, penThickness, penColor, isLooping, onToggleLoop }: TypingTestProps) {
+export default function TypingTest({ word, onComplete, onBack, onMismatch, onSpeak, onStop, isSpeaking, isPending, isIOS, isPhone, isAudioRepeat, penThickness, penColor, isLooping, onToggleLoop }: TypingTestProps) {
     const [userInput, setUserInput] = useState("");
     const inputRef = useRef<HTMLInputElement>(null);
     const [isFocused, setIsFocused] = useState(true);
@@ -47,6 +50,27 @@ export default function TypingTest({ word, onComplete, onBack, onMismatch, onSpe
     const [audioMode, setAudioMode] = useState<"en" | "original">("en");
     const [loopCounter, setLoopCounter] = useState(0);
     const [clearTrigger, setClearTrigger] = useState(0);
+    const initialMount = useRef(true);
+
+    useEffect(() => {
+        let timeout: NodeJS.Timeout;
+        const text = audioMode === "en" ? word.definition : word.original;
+        const lang = audioMode === "en" ? "en-US" : (word.language ? TTS_LANG_MAP[word.language] : "en-US");
+
+        if (initialMount.current) {
+            timeout = setTimeout(() => {
+                onSpeak(text, lang || "en-US", !!isAudioRepeat);
+                initialMount.current = false;
+            }, 400);
+        } else {
+            onSpeak(text, lang || "en-US", !!isAudioRepeat);
+        }
+
+        return () => {
+            clearTimeout(timeout);
+            onStop?.();
+        };
+    }, [word, audioMode, isAudioRepeat, onSpeak, onStop]);
 
     useEffect(() => {
         inputRef.current?.focus();
@@ -109,7 +133,7 @@ export default function TypingTest({ word, onComplete, onBack, onMismatch, onSpe
                     setLoopCounter(prev => prev + 1);
                     const text = audioMode === "en" ? word.definition : word.original;
                     const lang = audioMode === "en" ? "en-US" : (word.language ? TTS_LANG_MAP[word.language] : "en-US");
-                    onSpeak(text, lang || "en-US");
+                    onSpeak(text, lang || "en-US", false);
                 } else {
                     onComplete();
                     setUserInput("");
@@ -133,7 +157,7 @@ export default function TypingTest({ word, onComplete, onBack, onMismatch, onSpe
                 isIOS={isIOS}
                 clearTrigger={clearTrigger}
             />
-            {isIOS && (
+            {(isIOS || isPhone) && (
                 <>
                     <button
                         onClick={() => { onBack?.(); setUserInput(""); }}
@@ -265,7 +289,7 @@ export default function TypingTest({ word, onComplete, onBack, onMismatch, onSpe
                                 e.stopPropagation();
                                 const text = audioMode === "en" ? word.definition : word.original;
                                 const lang = audioMode === "en" ? "en-US" : (word.language ? TTS_LANG_MAP[word.language] : "en-US");
-                                onSpeak(text, lang || "en-US");
+                                onSpeak(text, lang || "en-US", !!isAudioRepeat);
                             }}
                             disabled={isPending}
                         >
@@ -311,17 +335,19 @@ export default function TypingTest({ word, onComplete, onBack, onMismatch, onSpe
             </AnimatePresence>
 
             {/* Hint for skip */}
-            <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 3 }}
-                className={cn(
-                    "absolute opacity-40 select-none text-center font-medium tracking-widest text-muted",
-                    isIOS ? "-bottom-16 text-[10px] md:text-xs" : "-bottom-12 text-xs"
-                )}
-            >
-                {isIOS ? "Use side arrows to navigate" : "Press TAB to skip"}
-            </motion.div>
+            {!isPhone && (
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 3 }}
+                    className={cn(
+                        "absolute opacity-40 select-none text-center font-medium tracking-widest text-muted",
+                        isIOS ? "-bottom-16 text-[10px] md:text-xs" : "-bottom-12 text-xs"
+                    )}
+                >
+                    {isIOS ? "Use side arrows to navigate" : "Press TAB to skip"}
+                </motion.div>
+            )}
         </div>
     );
 }

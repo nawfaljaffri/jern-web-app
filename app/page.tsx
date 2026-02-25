@@ -39,12 +39,22 @@ export default function Home() {
 
   const { speak, stop, voices, isSpeaking, isPending } = useTTS();
   const [isIOS, setIsIOS] = useState(false);
+  const [isPhone, setIsPhone] = useState(false);
   const { theme, setTheme } = useTheme();
 
   useEffect(() => {
     if (typeof navigator !== "undefined") {
-      setIsIOS(/iPad|iPhone|iPod/.test(navigator.userAgent) ||
-        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1));
+      const ua = navigator.userAgent;
+      const ipad = /iPad/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      const iphone = /iPhone|iPod/i.test(ua);
+      const androidPhone = /Android/i.test(ua) && /Mobile/i.test(ua);
+
+      setIsIOS(ipad || iphone);
+      setIsPhone(iphone || androidPhone || window.innerWidth < 768);
+
+      if (ipad) {
+        setSettings(prev => ({ ...prev, audioRepeat: true }));
+      }
     }
   }, []);
   const wordsSinceRecallRef = useRef(0);
@@ -163,19 +173,7 @@ export default function Home() {
 
   const currentWord = upcomingWords[0];
 
-  useEffect(() => {
-    let timeout: NodeJS.Timeout;
-    if (currentWord) {
-      // Delay speech slightly to allow Framer Motion entrance animation to finish naturally
-      timeout = setTimeout(() => {
-        speak(currentWord.definition, "en-US", settings.audioRepeat);
-      }, 400);
-    }
-    return () => {
-      clearTimeout(timeout);
-      stop();
-    };
-  }, [currentWord, settings.audioRepeat, speak, stop]);
+
 
   const handleComplete = useCallback(() => {
     if (!currentWord) return;
@@ -360,10 +358,13 @@ export default function Home() {
               word={currentWord}
               onComplete={handleComplete}
               onBack={handleBack}
-              onSpeak={(text, lang) => speak(text, lang, false)}
+              onSpeak={speak}
+              onStop={stop}
               isSpeaking={isSpeaking}
               isPending={isPending}
               isIOS={isIOS}
+              isPhone={isPhone}
+              isAudioRepeat={settings.audioRepeat}
               penThickness={settings.penThickness}
               penColor={settings.penColor}
               isLooping={settings.loopWord}
