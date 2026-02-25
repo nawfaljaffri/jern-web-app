@@ -201,7 +201,9 @@ export default function DrawingCanvas({ wordId, penThickness, penColor, isIOS }:
                 onPointerUp={handlePointerUpOrOut}
                 onPointerCancel={handlePointerUpOrOut}
                 onPointerOut={handlePointerUpOrOut}
-                onClick={(e) => e.stopPropagation()} // Prevent bubble to parent div which focuses input
+                onClick={(e) => {
+                    if (isIOS) e.stopPropagation();
+                }}
             />
             {isIOS && (
                 <div className="absolute top-2 right-4 flex gap-3 z-30 pointer-events-none">

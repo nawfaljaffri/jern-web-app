@@ -109,6 +109,9 @@ export default function TypingTest({ word, onComplete, onBack, onMismatch, onSpe
     return (
         <div
             className="relative flex flex-col items-center justify-center min-h-[400px] md:min-h-[500px] w-full cursor-text"
+            onClick={() => {
+                if (!isIOS) inputRef.current?.focus();
+            }}
         >
             <DrawingCanvas
                 wordId={word.id}
@@ -147,7 +150,12 @@ export default function TypingTest({ word, onComplete, onBack, onMismatch, onSpe
                 animate={isShaking ? { x: [-5, 5, -5, 5, 0] } : {}}
                 transition={{ duration: 0.4 }}
                 className="relative text-7xl md:text-8xl lg:text-[9rem] font-medium tracking-tight select-none flex flex-wrap justify-center gap-[0.05em] mb-12 z-0"
-                onClick={() => inputRef.current?.focus()}
+                onClick={(e) => {
+                    if (isIOS) {
+                        e.stopPropagation();
+                        inputRef.current?.focus();
+                    }
+                }}
             >
                 {normalizedRomanized.split("").map((char, index) => {
                     let colorClass = "text-foreground opacity-20";
