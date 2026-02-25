@@ -252,6 +252,20 @@ export default function Home() {
         </div>
       </header>
 
+      {/* Desktop Info Overlay */}
+      {!isIOS && (
+        <div className="absolute top-[88px] md:top-[100px] left-0 w-full flex justify-between items-center opacity-40 pointer-events-none px-8 md:px-16 z-10">
+          <div className="text-xs md:text-sm font-medium uppercase tracking-widest flex items-center gap-3 pointer-events-auto">
+            <Globe className="w-4 h-4" />
+            <span>{LANGUAGES.find(l => l.value === settings.language)?.label} / {settings.difficulty}</span>
+          </div>
+          <div className="text-xs md:text-sm font-medium uppercase tracking-widest flex items-center gap-2 pointer-events-auto">
+            <CheckCircle2 className="w-4 h-4" />
+            <span>Mastered: {history.length}</span>
+          </div>
+        </div>
+      )}
+
       {/* Main Content */}
       <div
         className={cn(
@@ -311,45 +325,32 @@ export default function Home() {
             </div>
           </div>
         ) : (
-          <>
-            <div className="w-full flex justify-between items-center opacity-30 mt-4 md:mt-8 pointer-events-none px-4 md:px-8 absolute top-0">
-              <div className="text-xs md:text-sm font-mono uppercase tracking-[0.4em] flex items-center gap-4 pointer-events-auto mt-2">
-                <Globe className="w-3 md:w-4 h-3 md:h-4" />
-                <span>{LANGUAGES.find(l => l.value === settings.language)?.label} / {settings.difficulty}</span>
-              </div>
-              <div className="text-xs md:text-sm font-mono uppercase tracking-[0.2em] flex items-center gap-2 pointer-events-auto mt-2">
-                <CheckCircle2 className="w-3 md:w-4 h-3 md:h-4" />
-                <span>Mastered: {history.length}</span>
-              </div>
-            </div>
-
-            <div className="absolute top-20 w-full flex flex-col items-center gap-2 text-center pointer-events-auto px-4 z-10 w-full left-0 right-0">
-              <AnimatePresence>
-                {['ja', 'ko'].includes(settings.language) && (
-                  <motion.div
-                    key="unstable-warning-web"
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className="text-[9px] font-mono uppercase tracking-widest text-orange-500/80 bg-orange-500/10 border border-orange-500/20 px-4 py-1.5 rounded-full text-center max-w-max mx-auto"
-                  >
-                    ⚠️ This language is currently under development.
-                  </motion.div>
-                )}
-                {isVoiceMissing && settings.language !== 'ur' && (
-                  <motion.div
-                    key="missing-voice-warning-web"
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className="text-[9px] font-mono uppercase tracking-widest text-red-500/80 bg-red-500/10 border border-red-500/20 px-6 py-2.5 rounded-xl text-center max-w-md mx-auto leading-loose"
-                  >
-                    🔇 Missing Voice Data: You may need to download the {LANGUAGES.find(l => l.value === settings.language)?.label} voice in your device settings.
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          </>
+          <div className="absolute top-20 w-full flex flex-col items-center gap-2 text-center pointer-events-auto px-4 z-10 w-full left-0 right-0">
+            <AnimatePresence>
+              {['ja', 'ko'].includes(settings.language) && (
+                <motion.div
+                  key="unstable-warning-web"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="text-[9px] font-medium uppercase tracking-widest text-orange-500/80 bg-orange-500/10 border border-orange-500/20 px-4 py-1.5 rounded-full text-center max-w-max mx-auto"
+                >
+                  ⚠️ This language is currently under development.
+                </motion.div>
+              )}
+              {isVoiceMissing && settings.language !== 'ur' && (
+                <motion.div
+                  key="missing-voice-warning-web"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="text-[9px] font-medium uppercase tracking-widest text-red-500/80 bg-red-500/10 border border-red-500/20 px-6 py-2.5 rounded-xl text-center max-w-md mx-auto leading-loose"
+                >
+                  🔇 Missing Voice Data: You may need to download the {LANGUAGES.find(l => l.value === settings.language)?.label} voice in your device settings.
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         )}
 
         <AnimatePresence mode="wait">
