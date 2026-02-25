@@ -313,12 +313,12 @@ export default function Home() {
         ) : (
           <>
             <div className="w-full flex justify-between items-center opacity-30 mt-4 md:mt-8 pointer-events-none px-4 md:px-8 absolute top-0">
-              <div className="text-[10px] font-mono uppercase tracking-[0.4em] flex items-center gap-4 pointer-events-auto">
-                <Globe className="w-3 h-3" />
+              <div className="text-xs md:text-sm font-mono uppercase tracking-[0.4em] flex items-center gap-4 pointer-events-auto mt-2">
+                <Globe className="w-3 md:w-4 h-3 md:h-4" />
                 <span>{LANGUAGES.find(l => l.value === settings.language)?.label} / {settings.difficulty}</span>
               </div>
-              <div className="text-[10px] font-mono uppercase tracking-[0.2em] flex items-center gap-2 pointer-events-auto">
-                <CheckCircle2 className="w-3 h-3" />
+              <div className="text-xs md:text-sm font-mono uppercase tracking-[0.2em] flex items-center gap-2 pointer-events-auto mt-2">
+                <CheckCircle2 className="w-3 md:w-4 h-3 md:h-4" />
                 <span>Mastered: {history.length}</span>
               </div>
             </div>

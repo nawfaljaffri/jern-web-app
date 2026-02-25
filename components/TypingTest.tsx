@@ -220,14 +220,14 @@ export default function TypingTest({ word, onComplete, onBack, onMismatch, onSpe
                     </div>
                     <div className={cn(
                         "font-mono uppercase tracking-[0.5em] mt-2",
-                        isIOS ? "text-[12px] md:text-sm text-muted/60" : "text-[10px] text-muted/40"
+                        isIOS ? "text-[12px] md:text-sm text-muted/60" : "text-xs md:text-sm text-muted/40"
                     )}>
                         {word.definition}
                     </div>
 
                     <div className={cn(
                         "flex items-center justify-center font-mono text-muted z-10",
-                        isIOS ? "mt-8 gap-4 text-xs md:text-sm tracking-[0.15em]" : "mt-6 gap-3 text-[10px] tracking-[0.1em]"
+                        isIOS ? "mt-8 gap-4 text-xs md:text-sm tracking-[0.15em]" : "mt-6 gap-3 text-xs tracking-[0.1em]"
                     )}>
                         <button
                             onClick={(e) => { e.stopPropagation(); setAudioMode("en"); }}
@@ -303,7 +303,7 @@ export default function TypingTest({ word, onComplete, onBack, onMismatch, onSpe
                 transition={{ delay: 3 }}
                 className={cn(
                     "absolute opacity-40 select-none text-center font-mono text-muted",
-                    isIOS ? "-bottom-16 text-[10px] md:text-xs" : "-bottom-12 text-[10px]"
+                    isIOS ? "-bottom-16 text-[10px] md:text-xs" : "-bottom-12 text-xs"
                 )}
             >
                 {isIOS ? "Use side arrows to navigate" : "Press TAB to skip"}
