@@ -44,6 +44,27 @@ export function useTTS() {
             if (window.speechSynthesis.onvoiceschanged !== undefined) {
                 window.speechSynthesis.onvoiceschanged = loadVoices;
             }
+
+            const handleVisibilityChange = () => {
+                if (document.visibilityState === 'hidden') {
+                    stop();
+                    window.speechSynthesis.cancel();
+                }
+            };
+
+            const handleBeforeUnload = () => {
+                stop();
+                window.speechSynthesis.cancel();
+            };
+
+            window.addEventListener('visibilitychange', handleVisibilityChange);
+            window.addEventListener('beforeunload', handleBeforeUnload);
+
+            return () => {
+                window.removeEventListener('visibilitychange', handleVisibilityChange);
+                window.removeEventListener('beforeunload', handleBeforeUnload);
+                stop();
+            };
         }
         return () => {
             stop();
