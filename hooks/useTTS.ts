@@ -68,18 +68,27 @@ export function useTTS() {
 
             // Special handling for English (especially on iOS to avoid robotic default)
             if (lang.startsWith("en")) {
-                // Preferred high-quality English voices
-                const preferredNames = ["Samantha", "Daniel", "Karen", "Moira", "Rishi", "Google US English", "Google UK English Female"];
+                const preferredUSNames = ["Samantha", "Ava", "Allison", "Susan", "Siri", "Google US English"];
 
-                // 1. Try to find a premium/enhanced voice first
-                matchedVoice = voices.find(v => v.lang.startsWith("en") && (v.name.includes("Premium") || v.name.includes("Enhanced")));
+                // 1. Try to find a premium/enhanced US voice matching preferred names
+                matchedVoice = voices.find(v => v.lang === "en-US" && preferredUSNames.some(name => v.name.includes(name)) && (v.name.includes("Premium") || v.name.includes("Enhanced")));
 
-                // 2. Try preferred names
+                // 2. Try any of the preferred US names (standard quality)
                 if (!matchedVoice) {
-                    matchedVoice = voices.find(v => v.lang.startsWith("en") && preferredNames.some(name => v.name.includes(name)));
+                    matchedVoice = voices.find(v => v.lang === "en-US" && preferredUSNames.some(name => v.name.includes(name)));
                 }
 
-                // 3. Fallback to any English voice
+                // 3. Try any premium en-US voice
+                if (!matchedVoice) {
+                    matchedVoice = voices.find(v => v.lang === "en-US" && (v.name.includes("Premium") || v.name.includes("Enhanced")));
+                }
+
+                // 4. Fallback to any en-US voice
+                if (!matchedVoice) {
+                    matchedVoice = voices.find(v => v.lang === "en-US");
+                }
+
+                // 5. Final fallback to any English voice
                 if (!matchedVoice) {
                     matchedVoice = voices.find(v => v.lang.startsWith("en"));
                 }
