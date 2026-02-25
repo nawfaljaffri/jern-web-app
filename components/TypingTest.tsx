@@ -133,7 +133,7 @@ export default function TypingTest({ word, onComplete, onBack, onMismatch, onSpe
                     setLoopCounter(prev => prev + 1);
                     const text = audioMode === "en" ? word.definition : word.original;
                     const lang = audioMode === "en" ? "en-US" : (word.language ? TTS_LANG_MAP[word.language] : "en-US");
-                    onSpeak(text, lang || "en-US", false);
+                    onSpeak(text, lang || "en-US", !!isAudioRepeat);
                 } else {
                     onComplete();
                     setUserInput("");

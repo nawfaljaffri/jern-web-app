@@ -211,7 +211,10 @@ export default function Home() {
       }
       return { ...prev, ...updates };
     });
-    stop();
+
+    if (updates.audioRepeat === false) {
+      stop();
+    }
   };
 
   const groupedHistory = LANGUAGES.map(lang => ({
