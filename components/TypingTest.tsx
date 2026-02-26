@@ -190,7 +190,7 @@ export default function TypingTest({ word, onComplete, onBack, onMismatch, onSpe
                 transition={{ duration: 0.4 }}
                 className={cn(
                     "relative text-7xl md:text-8xl lg:text-[9rem] font-medium tracking-tight select-none flex flex-wrap justify-center gap-[0.05em] mb-12 md:mt-4 lg:mt-6 z-0",
-                    isIOS ? "opacity-20 pointer-events-none absolute top-1/4" : "" // Place transliteration in background for iPad tracing
+                    isIOS ? "opacity-20 pointer-events-none" : "" // Only fade it out on iOS, keep it in document flow
                 )}
                 onClick={(e) => {
                     if (isIOS) {
@@ -249,7 +249,7 @@ export default function TypingTest({ word, onComplete, onBack, onMismatch, onSpe
                     <div className={cn(
                         "transition-colors",
                         // Absolute positioning on iOS to trace over it, normal flow otherwise
-                        isIOS ? "absolute top-[55%] text-6xl md:text-7xl lg:text-[11rem] text-muted/30 z-0 pointer-events-none" : "text-6xl text-muted/60",
+                        isIOS ? "absolute top-[60%] text-6xl md:text-7xl lg:text-[11rem] text-muted/30 z-0 pointer-events-none" : "text-6xl text-muted/60",
                         word.language === 'ar' || word.language === 'ur' ? "font-arabic" : "font-sans"
                     )} dir={word.language === 'ar' || word.language === 'ur' ? "rtl" : "ltr"}>
                         {word.original}
@@ -257,8 +257,7 @@ export default function TypingTest({ word, onComplete, onBack, onMismatch, onSpe
 
                     <div className={cn(
                         "font-medium uppercase tracking-[0.3em] mt-3",
-                        // On iOS we pin it to bottom area so it doesn't overlap drawing
-                        isIOS ? "absolute bottom-[20%] text-[12px] md:text-sm text-foreground/80 font-bold" : "text-sm text-muted/40"
+                        isIOS ? "text-[12px] md:text-sm text-muted/60" : "text-sm text-muted/40"
                     )}>
                         {word.definition}
                     </div>
@@ -266,7 +265,7 @@ export default function TypingTest({ word, onComplete, onBack, onMismatch, onSpe
                     {/* Audio & Looping Controls */}
                     <div className={cn(
                         "flex items-center justify-center font-medium text-muted z-10",
-                        isIOS ? "absolute bottom-10 gap-4 text-xs md:text-sm tracking-[0.15em] pointer-events-auto" : "mt-6 gap-3 text-sm tracking-widest"
+                        isIOS ? "mt-8 gap-4 text-xs md:text-sm tracking-[0.15em]" : "mt-6 gap-3 text-sm tracking-widest"
                     )}>
                         <button
                             onClick={(e) => { e.stopPropagation(); setAudioMode("en"); }}
