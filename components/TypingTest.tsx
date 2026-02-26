@@ -184,14 +184,10 @@ export default function TypingTest({ word, onComplete, onBack, onMismatch, onSpe
                 autoFocus
             />
 
-            {/* Transliteration text (used for typing test / tracing) */}
             <motion.div
                 animate={isShaking ? { x: [-5, 5, -5, 5, 0] } : {}}
                 transition={{ duration: 0.4 }}
-                className={cn(
-                    "relative text-7xl md:text-8xl lg:text-[9rem] font-medium tracking-tight select-none flex flex-wrap justify-center gap-[0.05em] mb-12 md:mt-4 lg:mt-6 z-0",
-                    isIOS ? "opacity-20 pointer-events-none" : "" // Only fade it out on iOS, keep it in document flow
-                )}
+                className="relative text-7xl md:text-8xl lg:text-[9rem] font-medium tracking-tight select-none flex flex-wrap justify-center gap-[0.05em] mb-12 md:mt-4 lg:mt-6 z-0"
                 onClick={(e) => {
                     if (isIOS) {
                         e.stopPropagation();
@@ -201,17 +197,13 @@ export default function TypingTest({ word, onComplete, onBack, onMismatch, onSpe
             >
                 {normalizedRomanized.split("").map((char, index) => {
                     let colorClass = "text-foreground opacity-20";
-                    if (!isIOS) {
-                        if (index < userInput.length) {
-                            colorClass = userInput[index] === char.toLowerCase() ? "text-foreground opacity-100" : "text-red-500 opacity-100";
-                        }
-                    } else {
-                        colorClass = "text-foreground"; // Keep it consistent for tracing on iPad
+                    if (index < userInput.length) {
+                        colorClass = userInput[index] === char.toLowerCase() ? "text-foreground opacity-100" : "text-red-500 opacity-100";
                     }
 
                     return (
                         <span key={index} className="relative">
-                            {!isIOS && isFocused && index === userInput.length && (
+                            {isFocused && index === userInput.length && (
                                 <motion.div
                                     layoutId="caret"
                                     className="absolute -left-[0.05em] top-0 bottom-0 w-[4px] bg-foreground opacity-50 rounded-full animate-pulse"
@@ -225,7 +217,7 @@ export default function TypingTest({ word, onComplete, onBack, onMismatch, onSpe
                         </span>
                     );
                 })}
-                {!isIOS && isFocused && userInput.length === normalizedRomanized.length && (
+                {isFocused && userInput.length === normalizedRomanized.length && (
                     <span className="relative">
                         <motion.div
                             layoutId="caret"
@@ -243,18 +235,15 @@ export default function TypingTest({ word, onComplete, onBack, onMismatch, onSpe
                     initial={{ opacity: 0, scale: 0.98 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.98 }}
-                    className="flex flex-col items-center gap-6 relative z-20 pointer-events-auto w-full h-full justify-center"
+                    className="flex flex-col items-center gap-6 relative z-20 pointer-events-auto"
                 >
-                    {/* Original Language Word */}
                     <div className={cn(
                         "transition-colors",
-                        // Absolute positioning on iOS to trace over it, normal flow otherwise
-                        isIOS ? "absolute top-[60%] text-6xl md:text-7xl lg:text-[11rem] text-muted/30 z-0 pointer-events-none" : "text-6xl text-muted/60",
+                        isIOS ? "text-6xl md:text-7xl lg:text-[7rem] text-muted/70 opacity-20 pointer-events-none" : "text-6xl text-muted/60",
                         word.language === 'ar' || word.language === 'ur' ? "font-arabic" : "font-sans"
                     )} dir={word.language === 'ar' || word.language === 'ur' ? "rtl" : "ltr"}>
                         {word.original}
                     </div>
-
                     <div className={cn(
                         "font-medium uppercase tracking-[0.3em] mt-3",
                         isIOS ? "text-[12px] md:text-sm text-muted/60" : "text-sm text-muted/40"
@@ -262,7 +251,6 @@ export default function TypingTest({ word, onComplete, onBack, onMismatch, onSpe
                         {word.definition}
                     </div>
 
-                    {/* Audio & Looping Controls */}
                     <div className={cn(
                         "flex items-center justify-center font-medium text-muted z-10",
                         isIOS ? "mt-8 gap-4 text-xs md:text-sm tracking-[0.15em]" : "mt-6 gap-3 text-sm tracking-widest"
