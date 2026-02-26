@@ -235,11 +235,14 @@ export default function TypingTest({ word, onComplete, onBack, onMismatch, onSpe
                     initial={{ opacity: 0, scale: 0.98 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.98 }}
-                    className="flex flex-col items-center gap-6 relative z-20 pointer-events-auto"
+                    className={cn(
+                        "flex flex-col items-center gap-6 relative z-20",
+                        isIOS ? "pointer-events-none" : "pointer-events-auto"
+                    )}
                 >
                     <div className={cn(
                         "transition-colors",
-                        isIOS ? "text-6xl md:text-7xl lg:text-[7rem] text-muted/70 opacity-20 pointer-events-none" : "text-6xl text-muted/60",
+                        isIOS ? "text-6xl md:text-7xl lg:text-[7rem] text-muted/70 opacity-20" : "text-6xl text-muted/60",
                         word.language === 'ar' || word.language === 'ur' ? "font-arabic" : "font-sans"
                     )} dir={word.language === 'ar' || word.language === 'ur' ? "rtl" : "ltr"}>
                         {word.original}
@@ -253,7 +256,7 @@ export default function TypingTest({ word, onComplete, onBack, onMismatch, onSpe
 
                     <div className={cn(
                         "flex items-center justify-center font-medium text-muted z-10",
-                        isIOS ? "mt-8 gap-4 text-xs md:text-sm tracking-[0.15em]" : "mt-6 gap-3 text-sm tracking-widest"
+                        isIOS ? "pointer-events-auto mt-8 gap-4 text-xs md:text-sm tracking-[0.15em]" : "mt-6 gap-3 text-sm tracking-widest"
                     )}>
                         <button
                             onClick={(e) => { e.stopPropagation(); setAudioMode("en"); }}
